@@ -4,7 +4,7 @@
 没了解过编译原理，简单写了下，支持一些简单的语法检查。
 
 #示例数据
-```
+```javascript
 {
 	name : 'anlige',
 	age : 23,
@@ -22,7 +22,7 @@
 
 
 #模板内容
-```html
+```
 <div>name = @name</div>
 <div>age = @age</div>
 <div>4 years later = @(age + 4)</div>
