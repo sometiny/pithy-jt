@@ -36,7 +36,11 @@ id('result2').innerHTML = pjt.render(code, data);
 
 ###借助helper(链式写法)
 ```javascript
-PjtHelper.compile(res).render(data).appendTo('result');
+
+PjtHelper
+	.compile(res)
+	.render(data)
+	.appendTo('result');
 ```
 appendTo方法把渲染后的数据赋值给result标签。
 
@@ -47,6 +51,8 @@ var render = PjtHelper.compile(res);
 
 ///渲染
 var appender = render.render(data);
+
+///赋值
 id('result3').innerHTML = appender;
 ```
 直接把appender赋值给result3标签。
