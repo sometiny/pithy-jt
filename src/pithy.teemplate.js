@@ -403,7 +403,7 @@ by anlige @ 2017-07-23
 		}
 		var lines = [];
 		if(type == TOKEN.EACH){
-			lines.push('for(var ' + key + '= 0; ' + key + ' < ' + variable_name + '.length; ' + key + '++){');
+			lines.push('for(var ' + key + ' = 0; ' + key + ' < ' + variable_name + '.length; ' + key + '++){');
 		}else{
 			lines.push('for(var ' + key + ' in ' + variable_name + '){');
 			lines.push('if(!' + variable_name + '.hasOwnProperty(' + key + ')) continue;');

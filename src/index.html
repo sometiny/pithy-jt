@@ -49,22 +49,21 @@
 			id('result2').innerHTML = pjt.render(code, data);
 		}
 		
-		var data ={
+		var data = {
 			name : 'anlige',
-			age : 23, 
+			age : 23,
 			list : [
-				{name : 'malier', classes : 'history'},
-				{name : 'anlige', classes : 'math'}
+				{date : '1986-9-1', text : 'birthday'},
+				{date : '1998-9-1', text : 'schrool'},
+				{date : '2009-6-21', text : 'work'}
 			],
-			me : {
-				name : 'lilith',
-				age : 24
-			},
-			color : 'red'
+			basic : {
+				sex : 'boy',
+				works : 9
+			}
 		};
 		
-		//Pjt.bind(data, 'template', 'result');
-		AJAX('template.html?t=' + Math.random(), function(res){
+		AJAX('template2.html?t=' + Math.random(), function(res){
 			ajax_callback(res);
 			ajax_callback2(res);
 			ajax_callback3(res);
