@@ -208,7 +208,6 @@ by anlige @ 2017-07-23
 		return token_type;
 	}
 
-	//¼òµ¥·ÖÎöÓï·¨´íÎó
 	function line(start, end, words, escape){
 		if(start == end){
 			return [];
