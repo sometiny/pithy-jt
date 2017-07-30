@@ -67,7 +67,8 @@ id('result3').innerHTML = appender;
 <div>sex = @basic['sex']</div>
 <div>works = @basic.works</div>
 ````
-支持基本的表达式，必要情况下可以使用“()”来作为表达式界定符
+支持基本的表达式，必要情况下可以使用“()”来作为表达式界定符。
+模板中输出@符号，请使用@@。
 
 ###代码块
 ```
@@ -76,6 +77,18 @@ id('result3').innerHTML = appender;
 }
 <div style="color:rgb(@r, @g, @b)">color:rgb(@r, @g, @b)</div>
 ```
+使用@紧跟{作为一个代码块，代码块需要|结束。
+
+###HTML块
+```
+@region 
+<script>
+var name = 'anlige';
+</script>
+@endregion
+```
+使用@region标识一个HTML代码块的开始，@endregion之前的所有代码仅仅被当做普通文本行，但参与变量渲染。
+主要用来在模板中引用style或script标签，当然，不建议在模板中引用，模板中尽量只有html标签。
 
 ###if语句
 ```

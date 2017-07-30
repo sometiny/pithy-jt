@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.teemplate.helper.js" charset="utf-8"></script>
+
+	<title>Pithy.js.teemplate</title>
+	<style type="text/css">
+		.container {width:100%; display: flex;}
+		.container>div{flex:1; padding-right:20px}
+		.container>div.flex2{flex:2; }
+		.container .result>textarea{width:100%;height:600px; padding:5px;outline:none;resize:none;font-family:'微软雅黑', arial;}
+	</style>
+</head>
+<body>
+	<h2>Pjt在线测试工具</h2>
+	<p>修改模板和数据内容，自动编译渲染</p>
+	<div class="container">
+		<div class="result"><h3>模板</h3><textarea id="template"></textarea></div>
+		<div class="result"><h3>数据</h3><textarea id="data">{
+	name : 'anlige',
+	age : 23,
+	list : [
+		{date : '1986-9-1', text : 'birthday'},
+		{date : '1998-9-1', text : 'schrool'},
+		{date : '2009-6-21', text : 'work'}
+	],
+	basic : {
+		sex : 'boy',
+		works : 9
+	}
+}</textarea></div>
+		<div class="result render-result"><h3>渲染结果</h3><div id="result"></div></div>
+		<div class="result render-result"><h3>编译结果</h3><div id="result-compile"></div></div>
+	</div>
+
+	<script>
+		function id(id){
+			return document.getElementById(id);
+		}
+		function on(ele, ev, handler, cap){
+			if(typeof ele == 'string'){
+				ele = id(ele);
+			}
+			if(ele.addEventListener){
+				ele.addEventListener(ev, handler, cap===true);
+			}else if(ele.attachEvent){
+				ele.attachEvent("on" + ev, handler);
+			}else{
+				ele["on" + ev] = handler;
+			}
+		};
+		function off_one(ele, ev, handler, cap){
+			if(typeof ele == 'string'){
+				ele = id(ele);
+			}
+			if(ele.removeEventListener){
+				ele.removeEventListener(ev, handler, cap===true);
+			}else if(ele.detachEvent){
+				ele.detachEvent("on" + ev, handler);
+			}else{
+				ele["on" + ev] = null;
+			}
+		}
+
+		var timer = null;
+
+		function stop(){
+			if(!timer){
+				return;
+			}
+
+			window.clearTimeout(timer);
+		}
+
+		function start(){
+			timer = window.setTimeout(callback, 500);
+		}
+		function exception(ex, dest){
+			id(dest || 'result').innerHTML = '<pre>' + (ex + '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+		}
+		function show(text){
+			id('result-compile').innerHTML = '<pre>' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+		}
+		function callback(){
+			var template = id('template').value;
+			var data_str = id('data').value;
+			
+			var render, appender, data;
+			
+			try{
+				render = PjtHelper.compile(template);
+				show(render.text);
+			}catch(ex){
+				exception('模板编译错误：\n' + ex, 'result-compile');
+				return;
+			}
+			try{
+				data = (new Function('return ' + data_str + ';'))();
+			}catch(ex){
+				exception('数据解析错误：\n' + ex);
+				return;
+			}
+			try{
+				appender = render.render(data);
+			}catch(ex){
+				exception('模板渲染错误：\n' + ex);
+				return;
+			}
+			
+			appender.appendTo('result');
+		}
+		function __initlize(){
+			id('template').value = id('_template').innerHTML.replace(/^\s+|\s+$/gm, '');
+			
+			on('template', 'keydown', stop);
+			on('data', 'keydown', stop);
+			
+			on('template', 'keyup', start);
+			on('data', 'keyup', start);
+			
+			callback();
+		}
+		on(window, 'load', __initlize);
+	</script>
+
+	<script type="text/template" id="_template">
+		<div>name = @name</div>
+		<div>age = @age</div>
+		<div>4 years later = @(age + 4)</div>
+		<div>sex = @basic.sex</div>
+		<div>works = @basic.works</div>
+		@{
+			var r = 255, g = 0, b = 0;
+		}
+		<div style="color:rgb(@r, @g, @b)">color:rgb(@r, @g, @b)</div>
+		<ul>
+		@for(var i = 0; i < list.length; i++){
+			<li>@list[i].date</li>
+		}
+		</ul>
+		<ul>
+		@each list as value{
+			<li>date =  @value.date</li>
+		}
+		</ul>
+		<ul>
+		@foreach basic as key, value{
+			<li>@key = @value</li>
+		}
+		</ul>
+	</script>
+</body>
+</html>

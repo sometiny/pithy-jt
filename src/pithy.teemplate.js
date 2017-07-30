@@ -331,7 +331,7 @@ by anlige @ 2017-07-23
 			start++;
 		}
 		if(quote){
-			throw '\' or " missing';
+			throw 'quote_char (' + quote_char + ') missing';
 		}
 		if(!verify && levels.length !=0){
 			throw '"' + PAIRS2[levels[levels.length - 1]] + '" missing';
