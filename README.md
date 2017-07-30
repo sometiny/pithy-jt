@@ -20,45 +20,6 @@
 }
 ```
 
-
-#模板内容
-```
-<div>name = @name</div>
-<div>age = @age</div>
-<div>4 years later = @(age + 4)</div>
-<div>sex = @basic.sex</div>
-<div>works = @basic.works</div>
-@{
-	var r = 255, g = 0, b = 0;
-}
-<div style="color:rgb(@r, @g, @b)">color:rgb(@r, @g, @b)</div>
-@if( age > 23){
-	<p>大于23岁</p>
-}else{
-	<p>不大于23岁</p>
-}
-<ul>
-@for(var i = 0; i < list.length; i++){
-	<li>@list[i].date</li>
-}
-</ul>
-<ul>
-@each list as value{
-	<li>date =  @value.date</li>
-}
-</ul>
-<ul>
-@each list as key, value{
-	<li>key = @key, date =  @value.date</li>
-}
-</ul>
-<ul>
-@foreach basic as key, value{
-	<li>@key = @value</li>
-}
-</ul>
-```
-
 #JavaScript调用方法
 
 ###不借助helper
@@ -77,6 +38,7 @@ id('result2').innerHTML = pjt.render(code, data);
 ```javascript
 PjtHelper.compile(res).render(data).appendTo('result');
 ```
+appendTo方法把渲染后的数据赋值给result标签。
 
 ###借助helper(非链式写法)
 ```javascript
@@ -87,6 +49,7 @@ var render = PjtHelper.compile(res);
 var appender = render.render(data);
 id('result3').innerHTML = appender;
 ```
+直接把appender赋值给result3标签。
 
 
 #模板语法类似Razor语法，不过比较宽松
@@ -148,3 +111,4 @@ id('result3').innerHTML = appender;
 }
 </ul>
 ```
+each和foreach是语法糖，最后是编译成原生js。
