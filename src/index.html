@@ -5,7 +5,6 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script type="text/javascript" src="pithy.teemplate.js" charset="utf-8"></script>
 	<script type="text/javascript" src="pithy.teemplate.helper.js" charset="utf-8"></script>
-	<script type="text/javascript" src="pithy.ajax.js" charset="utf-8"></script>
 
 	<title>Pithy.js.teemplate</title>
 	<style type="text/css">
@@ -62,12 +61,49 @@
 				works : 9
 			}
 		};
-		
-		AJAX('template2.html?t=' + Math.random(), function(res){
+		window.onload = function(){
+			var res = id('template').innerHTML;
 			ajax_callback(res);
 			ajax_callback2(res);
 			ajax_callback3(res);
-		});
+		};
+	</script>
+
+	<script type="text/template" id="template">
+		<div>name = @name</div>
+		<div>age = @age</div>
+		<div>4 years later = @(age + 4)</div>
+		<div>sex = @basic.sex</div>
+		<div>works = @basic.works</div>
+		@{
+			var r = 255, g = 0, b = 0;
+		}
+		<div style="color:rgb(@r, @g, @b)">color:rgb(@r, @g, @b)</div>
+		@if( age > 23){
+			<p>大于23岁</p>
+		}else{
+			<p>不大于23岁</p>
+		}
+		<ul>
+		@for(var i = 0; i < list.length; i++){
+			<li>@list[i].date</li>
+		}
+		</ul>
+		<ul>
+		@each list as value{
+			<li>date =  @value.date</li>
+		}
+		</ul>
+		<ul>
+		@each list as key, value{
+			<li>key = @key, date =  @value.date</li>
+		}
+		</ul>
+		<ul>
+		@foreach basic as key, value{
+			<li>@key = @value</li>
+		}
+		</ul>
 	</script>
 </body>
 </html>
