@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="pithy.teemplate.helper.js" charset="utf-8"></script>
+	<script type="text/javascript" src="pithy.ajax.js" charset="utf-8"></script>
+
+	<title>Pithy.js.teemplate</title>
+	<style type="text/css">
+		.container {width:100%; display: flex;}
+		.container>div{float: left; flex:1}
+		.container>div#result4{flex:2;color:#dc1111 !important; text-align: left;}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div id="result4" class="result"></div>
+		<div id="result" class="result"></div>
+		<div id="result2" class="result"></div>
+		<div id="result3" class="result"></div>
+	</div>
+
+	<script>
+		function id(id){
+			return document.getElementById(id);
+		}
+
+		function ajax_callback(res){
+
+			//use helper code
+			PjtHelper.compile(res).render(data).appendTo('result');
+		}
+		function ajax_callback3(res){
+
+			//use helper code
+			var render = PjtHelper.compile(res);
+			var appender = render.render(data);
+			id('result4').innerHTML = '<pre>' + (render + '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+			id('result3').innerHTML = appender;
+		}
+
+		function ajax_callback2(res){
+
+			//use origin code
+			var pjt = new Pjt();
+			var code = pjt.compile(res);
+			id('result2').innerHTML = pjt.render(code, data);
+		}
+		
+		var data ={
+			name : 'anlige',
+			age : 23, 
+			list : [
+				{name : 'malier', classes : 'history'},
+				{name : 'anlige', classes : 'math'}
+			],
+			me : {
+				name : 'lilith',
+				age : 24
+			},
+			color : 'red'
+		};
+		
+		//Pjt.bind(data, 'template', 'result');
+		AJAX('template.html?t=' + Math.random(), function(res){
+			ajax_callback(res);
+			ajax_callback2(res);
+			ajax_callback3(res);
+		});
+	</script>
+</body>
+</html>

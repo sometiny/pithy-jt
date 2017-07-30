@@ -1,0 +1,29 @@
+@{
+	var r = parseInt(Math.random() * 256);
+	var g = parseInt(Math.random() * 256);
+	var b = parseInt(Math.random() * 256);
+}
+@region name
+<style>
+	.result {color:rgb(@r, @g, @b)}
+</style>
+@endregion
+
+<h3>Pjs</h3>
+<div>name = @name, age = @age</div>
+<div style="color:@(color == 'red' ? 'red' : 'green')">@name => @(age + 23)</div>
+
+<h4>for(for normal)</h4>
+<ul>
+@for(var i = 0; i < list.length; i++){
+	<li>@list[i].name => @list[i].classes </li>
+}
+</ul>
+<h4>foreach(for objected-type)</h4>
+@foreach me as key, value {
+	<div>@key => @value</div>
+}
+<h4>each(for array)</h4>
+@each list as key, value {
+	<div>@value.name => @value.classes</div>
+}
