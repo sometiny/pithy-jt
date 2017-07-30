@@ -18,9 +18,6 @@ by anlige @ 2017-07-23
 	
 	var PAIRS = {')' : '(', '}' : '{', ']' : '['};
 	var PAIRS2 = {'(' : ')', '{' : '}', '[' : ']'};
-	
-	var CODE_LEVELS = [];
-	var INLINE_LEVELS = [];
 
 	
 	var push = Array.prototype.push;
@@ -239,8 +236,7 @@ by anlige @ 2017-07-23
 					part += '@';
 					break;
 				}
-				INLINE_LEVELS.length = 0;
-				part_end = check_syntax(index + 1, words.length, words, INLINE_LEVELS);
+				part_end = check_syntax(index + 1, words.length, words, []);
 				if(part_end > index + 1){
 					result.push(VARIABLE_NAME + ' += "' + part.replace(/"/g, '\\"') + '";');
 					variable_expression = words.slice(index + 1, part_end).join('');
@@ -444,7 +440,7 @@ by anlige @ 2017-07-23
 
 		content = content.replace(/^([\r\n]+)/, '');
 		
-		CODE_LEVELS.length = 0;
+		var CODE_LEVELS = [];
 		
 		function exception(e, start, fullline){
 			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + fullline;
