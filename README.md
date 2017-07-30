@@ -3,8 +3,7 @@
 
 没了解过编译原理，简单写了下，支持一些简单的语法检查。
 
-#模板语法类似Razor语法，不过比较宽松
-###示例数据
+#示例数据
 ```
 {
 	name : 'anlige',
@@ -20,6 +19,77 @@
 	}
 }
 ```
+
+
+#模板内容
+```html
+<div>name = @name</div>
+<div>age = @age</div>
+<div>4 years later = @(age + 4)</div>
+<div>sex = @basic.sex</div>
+<div>works = @basic.works</div>
+@{
+	var r = 255, g = 0, b = 0;
+}
+<div style="color:rgb(@r, @g, @b)">color:rgb(@r, @g, @b)</div>
+@if( age > 23){
+	<p>大于23岁</p>
+}else{
+	<p>不大于23岁</p>
+}
+<ul>
+@for(var i = 0; i < list.length; i++){
+	<li>@list[i].date</li>
+}
+</ul>
+<ul>
+@each list as value{
+	<li>date =  @value.date</li>
+}
+</ul>
+<ul>
+@each list as key, value{
+	<li>key = @key, date =  @value.date</li>
+}
+</ul>
+<ul>
+@foreach basic as key, value{
+	<li>@key = @value</li>
+}
+</ul>
+```
+
+#JavaScript调用方法
+
+###不借助helper
+```javascript
+///初始化实例
+var pjt = new Pjt();
+
+///模板编译
+var code = pjt.compile(res);
+
+///渲染数据
+id('result2').innerHTML = pjt.render(code, data);
+```
+
+###借助helper(链式写法)
+```javascript
+PjtHelper.compile(res).render(data).appendTo('result');
+```
+
+###借助helper(非链式写法)
+```javascript
+///编译
+var render = PjtHelper.compile(res);
+
+///渲染
+var appender = render.render(data);
+id('result3').innerHTML = appender;
+```
+
+
+#模板语法类似Razor语法，不过比较宽松
 ###赋值
 ```
 <div>name = @name</div>
