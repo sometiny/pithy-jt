@@ -54,7 +54,11 @@ by anlige @ 2017-07-28
 	
 	var global_pjt = null;
 	var __initlize = function(){};
-	//static compile
+
+	/*
+		content : template text need to be compiled
+		return : __render instance
+	*/
 	__initlize.compile = function(content){
 		if(global_pjt == null){
 			global_pjt = new _pjt();
@@ -62,7 +66,11 @@ by anlige @ 2017-07-28
 		return new __render(global_pjt.compile(content), global_pjt);
 	};
 
-	//static render
+	/*
+		content : compiled-text
+		data	: data need to be rendered
+		return : rendered-result(text)
+	*/
 	__initlize.render = function(content, data){
 		if(global_pjt == null){
 			global_pjt = new _pjt();
@@ -71,7 +79,10 @@ by anlige @ 2017-07-28
 	};
 
 
-	//try to execute script append by innerHTML
+	/*
+		try to execute script append by innerHTML
+		ele	: html element, contains rendered-result need to be exexute
+	*/
 	__initlize.execute = function(ele){
 		var scripts = ele.getElementsByTagName('script');
 		if(scripts.length == 0 ){
@@ -90,26 +101,22 @@ by anlige @ 2017-07-28
 		}
 	};
 
-	var __CACHE__ = {};
-	
-	__initlize.bind = function(data, src, dest){
-		var is_id = typeof src == 'string';
 
-		var contents = '';
+	/*
+		data : data need to be rendered
+		src  : html element, contains template text need to be compiled
+		dest : 	1¡¢html element, show rendered-result
+				2¡¢function, arg1 is rendered-result
+	*/
+	__initlize.bind = function(data, src, dest){
+
+		var contents = html(src);
+		if(!contents){
+			return '';
+		}
 		
 		var pjt = new _pjt();
-		if(is_id && __CACHE__[src]){
-			contents = __CACHE__[src];
-		}else{
-			contents = html(src);
-			if(!contents){
-				return '';
-			}
-			contents = pjt.compile(contents);
-			if(is_id){
-				__CACHE__[src] = contents;
-			}
-		}
+		contents = pjt.compile(contents);
 
 		var result = pjt.render(contents, data);
 		if(typeof dest == 'function'){

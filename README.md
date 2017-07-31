@@ -57,6 +57,25 @@ id('result3').innerHTML = appender;
 ```
 直接把appender赋值给result3标签。
 
+###bind方法
+```javascript
+
+/*
+	PjtHelper.bind(data, src, dest);
+	data : 待渲染的数据
+	src  : html元素，包含待编译的模板文本
+	dest : 	1、html元素, 用来显示渲染结果
+			2、回调函数, 第一个参数为渲染结果
+*/
+
+PjtHelper.bind(data, '_template', 'result3');
+
+///等效于
+PjtHelper.bind(data, '_template', function(res){
+	document.getElementById('result3').innerHTML = res;
+});
+```
+
 
 #模板语法类似Razor语法，不过比较宽松
 ###赋值
