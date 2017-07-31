@@ -10,7 +10,7 @@ by anlige @ 2017-07-23
 		trim_start : true,
 		strict : true,
 		escape : false,
-		cache : crc32
+		cache : true
 	};
 	var blank_chars = {'\r' : true, '\n' : true, '\t' : true, ' ' : true};
 	var newline_chars = {'\r' : true, '\n' : true};
@@ -428,16 +428,13 @@ by anlige @ 2017-07-23
 			throw 'Exception: can not modify property \'' + name + '\'';
 			return;
 		}
-		if(name == 'cache'){
-			value = (crc32 && value === true);
-		}
 		this[name] = value;
 	};
 	
 	__initlize.prototype.compile = function(content){
 		var _crc32 = '';
 		if(this.cache === true){
-			_crc32 = Crc32(content);
+			_crc32 = crc32(content);
 			if(__CACHE__.hasOwnProperty(_crc32)){
 				return __CACHE__[_crc32];
 			}
@@ -587,8 +584,55 @@ by anlige @ 2017-07-23
 		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'escape' && (global_setting[name] = value !== false);
-		name == 'cache' && (global_setting[name] = (crc32 && value === true));
+		name == 'cache' && (global_setting[name] = value !== false);
 	};
 	
 	window.Pjt = __initlize;
-})(typeof window.Crc32 == 'function');
+})((function(){
+	var Crc32Table=[], map_hex2 = [];
+	function MakeTable()
+	{
+	    var i,j,crc;
+	    for (i = 0; i < 256; i++)
+	    {
+	        crc = i;
+	        for (j = 0; j < 8; j++)
+	        {
+	            if (crc & 1)
+	                crc = (crc >>> 1) ^ 0xEDB88320;
+	            else
+	                crc >>>= 1;
+	        }
+	        Crc32Table[i] = crc;
+	        map_hex2.push(('0' + i.toString(16)).substr(-2));
+	    }
+	}
+	function __initlize(csData)
+	{
+		if(!csData){
+			return '';
+		}
+	    var crc  = 0xffffffff, len = csData.length, i=0;
+	    var chr = 0;
+	    for(var i = 0; i < len; i++)
+	    {
+			chr = csData.charCodeAt(i);
+			if(chr <= 0xff){
+		    	crc = (crc >>> 8) ^ Crc32Table[(crc ^ chr) & 0xff ];
+	    	}else{
+		    	crc = (crc >>> 8) ^ Crc32Table[(crc ^ ((chr >>> 2) & 0xff)) & 0xff ];
+		    	crc = (crc >>> 8) ^ Crc32Table[(crc ^ (chr & 0xff)) & 0xff ];
+	    	}
+	    }
+	    return word2hex(crc ^ 0xffffffff);
+	}
+	function word2hex(word){
+		return map_hex2[word>>>24] + 
+		map_hex2[(word>>16) & 0xff] + 
+		map_hex2[(word>>8) & 0xff] + 
+		map_hex2[word & 0xff];
+	}
+	MakeTable();
+	
+	return __initlize;
+})());
