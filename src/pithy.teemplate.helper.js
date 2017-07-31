@@ -16,16 +16,17 @@ by anlige @ 2017-07-28
 		element && (element.innerHTML = contents);
 	}
 	
-	function __container(text){
+	function __container(text, instance){
 		this.text = text;
+		this.instance = instance;
 	}
 	__container.prototype.valueOf = __container.prototype.toString = function(){
 		return this.text;
 	};
 
 	function extend(props){
-		function __contruct(text){
-			__container.call(this, text);
+		function __contruct(){
+			__container.apply(this, arguments);
 		}
 		__contruct.prototype = new __container();
 		for(var name in props){
@@ -46,7 +47,7 @@ by anlige @ 2017-07-28
 
 	var __render = extend({
 		render : function(data){
-			return new __appender(global_pjt.render(this.text, data));
+			return new __appender(this.instance.render(this.text, data));
 		}
 	});
 
@@ -58,7 +59,7 @@ by anlige @ 2017-07-28
 		if(global_pjt == null){
 			global_pjt = new _pjt();
 		}
-		return new __render(global_pjt.compile(content));
+		return new __render(global_pjt.compile(content), global_pjt);
 	};
 
 	//static render

@@ -5,11 +5,12 @@ javascript template parse engine;
 by anlige @ 2017-07-23
 */
 
-;(function(){
+;(function(crc32){
 	var global_setting = {
 		trim_start : true,
 		strict : true,
-		escape : false
+		escape : false,
+		cache : crc32
 	};
 	var blank_chars = {'\r' : true, '\n' : true, '\t' : true, ' ' : true};
 	var newline_chars = {'\r' : true, '\n' : true};
@@ -413,7 +414,7 @@ by anlige @ 2017-07-23
 		return linetext.length >= ends_length && linetext.substr(linetext.length - ends_length) == ends;
 	}
 
-	
+	var __CACHE__ = {};
 	function __initlize(){
 		for(var name in global_setting){
 			if(!global_setting.hasOwnProperty(name)){
@@ -427,10 +428,21 @@ by anlige @ 2017-07-23
 			throw 'Exception: can not modify property \'' + name + '\'';
 			return;
 		}
+		if(name == 'cache'){
+			value = (crc32 && value === true);
+		}
 		this[name] = value;
 	};
 	
 	__initlize.prototype.compile = function(content){
+		var _crc32 = '';
+		if(this.cache === true){
+			_crc32 = Crc32(content);
+			if(__CACHE__.hasOwnProperty(_crc32)){
+				return __CACHE__[_crc32];
+			}
+		}
+		
 		var result = [];
 		var __LINE__ =  0;
 		result.push('var ' + VARIABLE_NAME + ' = \'\';');
@@ -537,7 +549,12 @@ by anlige @ 2017-07-23
 		}
 		result.push('return ' + VARIABLE_NAME + ';');
 		result = filter_result(result);
-		return result.join('\r\n');
+		var code = result.join('\r\n');
+
+		if(this.cache === true){
+			__CACHE__[_crc32] = code;
+		}
+		return code;
 	};
 	
 	__initlize.prototype.render = function(content, data){
@@ -570,7 +587,8 @@ by anlige @ 2017-07-23
 		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'escape' && (global_setting[name] = value !== false);
+		name == 'cache' && (global_setting[name] = (crc32 && value === true));
 	};
 	
 	window.Pjt = __initlize;
-})();
+})(typeof window.Crc32 == 'function');
