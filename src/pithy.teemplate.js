@@ -8,7 +8,6 @@ by anlige @ 2017-07-23
 ;(function(crc32){
 	var global_setting = {
 		trim_start : true,
-		strict : true,
 		escape : false,
 		cache : true
 	};
@@ -443,9 +442,6 @@ by anlige @ 2017-07-23
 		var result = [];
 		var __LINE__ =  0;
 		result.push('var ' + VARIABLE_NAME + ' = \'\';');
-		if(!this.strict){
-			result.push('with($){');
-		}
 
 		content = content.replace(/^([\r\n]+)/, '');
 		
@@ -541,9 +537,6 @@ by anlige @ 2017-07-23
 			throw exception('"' + PAIRS2[CODE_LEVELS[CODE_LEVELS.length - 1]] + '" missing', last_line_start, last_code_line);
 		}
 		
-		if(!this.strict){
-			result.push('}');
-		}
 		result.push('return ' + VARIABLE_NAME + ';');
 		result = filter_result(result);
 		var code = result.join('\r\n');
@@ -557,9 +550,6 @@ by anlige @ 2017-07-23
 	__initlize.prototype.render = function(content, data){
 		if(!data || toString.call(data) != '[object Object]'){
 			throw 'Exception : data is invalid. it must be an objected-type.';
-		}
-		if(!this.strict){
-			return (new Function('$', '__helper', content))(data, helper);
 		}
 		
 		var keys = [];
@@ -581,7 +571,6 @@ by anlige @ 2017-07-23
 	};
 	
 	__initlize.config = function(name, value){
-		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'escape' && (global_setting[name] = value !== false);
 		name == 'cache' && (global_setting[name] = value !== false);
