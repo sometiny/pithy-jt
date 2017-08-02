@@ -8,7 +8,7 @@ by anlige @ 2017-07-23
 ;(function(crc32){
 	var global_setting = {
 		trim_start : true,
-		escape : false,
+		escape : true,
 		cache : true
 	};
 	var blank_chars = {'\r' : true, '\n' : true, '\t' : true, ' ' : true};
@@ -342,13 +342,14 @@ by anlige @ 2017-07-23
 	var helper = {
 		escape :function(src){
 			if(src === undefined || src === null){
-				return src;
+				return '';
 			}
 			src = src + '';
 			if(!src){
-				return ;
+				return '';
 			}
 			return src
+			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
 		}
