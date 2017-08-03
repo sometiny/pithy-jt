@@ -27,18 +27,18 @@
 ///初始化实例
 
 ///模板编译
-var code = Pjt.compile(res);
+var code = Pjt.compile('<p>@name</p>');
 
 ///渲染数据
-id('result2').innerHTML = Pjt.render(code, data);
+id('result2').innerHTML = Pjt.render(code, {name : 'Jazor'});
 ```
 
 ###借助helper(链式写法)
 ```javascript
 
 PjtHelper
-	.compile(res)
-	.render(data)
+	.compile('<p>@name</p>')
+	.render({name : 'Jazor'})
 	.appendTo('result');
 ```
 appendTo方法把渲染后的数据赋值给result标签。
@@ -46,10 +46,10 @@ appendTo方法把渲染后的数据赋值给result标签。
 ###借助helper(非链式写法)
 ```javascript
 ///编译
-var render = PjtHelper.compile(res);
+var render = PjtHelper.compile('<p>@name</p>');
 
 ///渲染
-var appender = render.render(data);
+var appender = render.render({name : 'Jazor'});
 
 ///赋值
 id('result3').innerHTML = appender;
@@ -67,10 +67,10 @@ id('result3').innerHTML = appender;
 			2、回调函数, 第一个参数为渲染结果
 */
 
-PjtHelper.bind(data, '_template', 'result3');
+PjtHelper.bind({name : 'Jazor'}, '_template', 'result3');
 
 ///等效于
-PjtHelper.bind(data, '_template', function(res){
+PjtHelper.bind({name : 'Jazor'}, '_template', function(res){
 	document.getElementById('result3').innerHTML = res;
 });
 ```
