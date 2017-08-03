@@ -21,6 +21,8 @@ by anlige @ 2017-07-23
 
 	
 	var push = Array.prototype.push;
+	var shift = Array.prototype.shift;
+	var slice = Array.prototype.slice;
 	var toString = Object.prototype.toString;
 	var chr = '';
 	var VARIABLE_NAME = '__con__';
@@ -568,6 +570,19 @@ by anlige @ 2017-07-23
 	};
 	helper.typeOf = __initlize.typeOf = function(ele){
 		return toString.call(ele);
+	};
+	__initlize.register = function(name, func){
+		helper[name] = function(){
+			return new __raw(func.apply(helper, arguments));
+		};
+	};
+	__initlize.invoke = function(name){
+		if(!helper.hasOwnProperty(name)){
+			return;
+		}
+		var args = slice.call(arguments, 0);
+		args.shift();
+		return helper[name].apply(this, args).text;
 	};
 	
 	__initlize.config = function(name, value){
