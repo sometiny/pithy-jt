@@ -88,7 +88,7 @@ by anlige @ 2017-07-28
 				_script.src = script.src;
 				script.parentNode.replaceChild(_script, script);
 			}else{
-				(new Function(script.innerHTML))();
+				(window.execScript || (function(code){ window['eval'].call(window, code) }))(script.text || script.textContent || script.innerHTML);
 			}
 		}
 	};
