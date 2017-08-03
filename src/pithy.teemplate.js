@@ -593,7 +593,7 @@ by anlige @ 2017-07-23
 	                crc >>>= 1;
 	        }
 	        Crc32Table[i] = crc;
-	        map_hex2.push(('0' + i.toString(16)).substr(-2));
+	        map_hex2.push(('0' + i.toString(16)).slice(-2));
 	    }
 	}
 	function __initlize(csData)
