@@ -15,6 +15,35 @@ by anlige @ 2017-07-28
 		}
 		element && (element.innerHTML = contents);
 	}
+
+	function fill(id, contents){
+		var element = typeof id == 'string' ? document.getElementById(id) : id;
+		if(!element){
+			return;
+		}
+
+		if(document.createDocumentFragment){
+			element.innerHTML = '';
+			var appender = document.createDocumentFragment();
+
+			var __temp = document.createElement('div');
+			__temp.innerHTML = '_' + contents;
+			__temp.removeChild(__temp.firstChild);
+
+			var first = null;
+			while(first = __temp.firstChild){
+				appender.appendChild(first);
+			}
+			element.appendChild(appender);
+			__temp = null;
+			appender = null;
+		}else{
+			element.innerHTML = '_' + contents;
+			element.removeChild(element.firstChild);
+		}
+		
+		__initlize.execute(element);
+	}
 	
 	function __container(text){
 		this.text = text;
@@ -39,7 +68,7 @@ by anlige @ 2017-07-28
 
 	var __appender = extend({
 		appendTo : function(id){
-			html(id, this.text);
+			fill(id, this.text);
 			return this;
 		}
 	});
@@ -52,6 +81,8 @@ by anlige @ 2017-07-28
 
 	
 	var __initlize = function(){};
+
+	__initlize.fill = fill;
 
 	/*
 		content : template text need to be compiled
@@ -86,6 +117,15 @@ by anlige @ 2017-07-28
 			if(script.src){
 				var _script = document.createElement('script');
 				_script.src = script.src;
+				_script.onload = _script.onreadystatechange = (function(ele){ return function() {
+					if (!ele.readyState || /loaded|complete/.test( ele.readyState ) ) {
+						ele.onload = ele.onreadystatechange = null;
+						if ( ele.parentNode ) {
+							ele.parentNode.removeChild( ele );
+						}
+						ele = null;
+					}
+				};})(_script);
 				script.parentNode.replaceChild(_script, script);
 			}else{
 				(window.execScript || (function(code){ window['eval'].call(window, code) }))(script.text || script.textContent || script.innerHTML);
@@ -113,7 +153,7 @@ by anlige @ 2017-07-28
 		if(typeof dest == 'function'){
 			dest(result);
 		}else{
-			html(dest, result);
+			fill(dest, result);
 		}
 	};
 	
