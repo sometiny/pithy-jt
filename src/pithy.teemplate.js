@@ -205,21 +205,20 @@ by anlige @ 2017-07-23
 		return token_type;
 	}
 
-	function line(start, end, words, escape){
+	function line(start, end, words){
 		if(start == end){
 			return [];
 		}
 
-		var length = end;
-		var index = start;
-
-		var token = '', 
-			chr = '';
-
-		var result = [];
-		var part = '';
-		var part_end = 0; 
-		var variable_expression = '';
+		var length = end, 
+			index = start, 
+			token = '', 
+			chr = '',
+			result = [], 
+			part = '', 
+			part_end = 0,
+			variable_expression = '', 
+			escape = global_setting.escape;
 		
 		while(true){
 			if(index== length){
@@ -242,7 +241,7 @@ by anlige @ 2017-07-23
 					variable_expression = words.slice(index + 1, part_end).join('');
 					index = part_end - 1;
 					part = '';
-					result.push(VARIABLE_NAME + ' += ' + (escape ? '__helper.escape(' : '') + variable_expression + (escape ? ')' : '') + ';');
+					result.push(VARIABLE_NAME + ' += ' + (escape ? 'Html.escape(' : '') + variable_expression + (escape ? ')' : '') + ';');
 				}else{
 					part += '@';
 				}
@@ -338,9 +337,15 @@ by anlige @ 2017-07-23
 		}
 		return start;
 	}
-
+	var __raw = function(text){
+		this.text = text;
+	}
 	var helper = {
 		escape :function(src){
+			var is_raw = src instanceof __raw;
+			if(is_raw){
+				src = src.text;
+			}
 			if(src === undefined || src === null){
 				return '';
 			}
@@ -348,10 +353,18 @@ by anlige @ 2017-07-23
 			if(!src){
 				return '';
 			}
+			if(is_raw){
+				return src;
+			}
 			return src
 			.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
+		},
+		raw : function(src){
+			return new __raw(src);
 		}
 	};
 
@@ -416,24 +429,11 @@ by anlige @ 2017-07-23
 
 	var __CACHE__ = {};
 	function __initlize(){
-		for(var name in global_setting){
-			if(!global_setting.hasOwnProperty(name)){
-				continue;
-			}
-			this.config(name, global_setting[name]);
-		}
 	}
-	__initlize.prototype.config = function(name, value){
-		if(__initlize.prototype[name]){
-			throw 'Exception: can not modify property \'' + name + '\'';
-			return;
-		}
-		this[name] = value;
-	};
 	
-	__initlize.prototype.compile = function(content){
+	__initlize.compile = function(content){
 		var _crc32 = '';
-		if(this.cache === true){
+		if(global_setting.cache === true){
 			_crc32 = crc32(content);
 			if(__CACHE__.hasOwnProperty(_crc32)){
 				return __CACHE__[_crc32];
@@ -451,8 +451,7 @@ by anlige @ 2017-07-23
 		function exception(e, start, fullline){
 			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + fullline;
 		}
-		var trim_start = this.trim_start,
-			escape = this.escape,
+		var trim_start = global_setting.trim_start,
 
 			last_code_line = '',
 			last_line_num = 0,
@@ -520,7 +519,7 @@ by anlige @ 2017-07-23
 						if(!trim_start && emptys){
 							result.push(VARIABLE_NAME + ' += "' + emptys + '";');
 						}
-						push.apply(result, line(_token.start, _token.end, words, escape));
+						push.apply(result, line(_token.start, _token.end, words));
 						result.push(VARIABLE_NAME + ' += "\\n";');
 					}catch(e){
 						if(typeof e == 'string'){
@@ -542,13 +541,13 @@ by anlige @ 2017-07-23
 		result = filter_result(result);
 		var code = result.join('\r\n');
 
-		if(this.cache === true){
+		if(global_setting.cache === true){
 			__CACHE__[_crc32] = code;
 		}
 		return code;
 	};
 	
-	__initlize.prototype.render = function(content, data){
+	__initlize.render = function(content, data){
 		if(!data || toString.call(data) != '[object Object]'){
 			throw 'Exception : data is invalid. it must be an objected-type.';
 		}
@@ -562,7 +561,7 @@ by anlige @ 2017-07-23
 			keys.push(key);
 			values.push(data[key]);
 		}
-		keys.push('__helper');
+		keys.push('Html');
 		values.push(helper);
 		var wapper = new Function(keys, content);
 		return wapper.apply(null, values);

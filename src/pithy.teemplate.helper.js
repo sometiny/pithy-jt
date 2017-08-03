@@ -16,9 +16,8 @@ by anlige @ 2017-07-28
 		element && (element.innerHTML = contents);
 	}
 	
-	function __container(text, instance){
+	function __container(text){
 		this.text = text;
-		this.instance = instance;
 	}
 	__container.prototype.valueOf = __container.prototype.toString = function(){
 		return this.text;
@@ -47,12 +46,11 @@ by anlige @ 2017-07-28
 
 	var __render = extend({
 		render : function(data){
-			return new __appender(this.instance.render(this.text, data));
+			return new __appender(_pjt.render(this.text, data));
 		}
 	});
 
 	
-	var global_pjt = null;
 	var __initlize = function(){};
 
 	/*
@@ -60,10 +58,7 @@ by anlige @ 2017-07-28
 		return : __render instance
 	*/
 	__initlize.compile = function(content){
-		if(global_pjt == null){
-			global_pjt = new _pjt();
-		}
-		return new __render(global_pjt.compile(content), global_pjt);
+		return new __render(_pjt.compile(content));
 	};
 
 	/*
@@ -72,10 +67,7 @@ by anlige @ 2017-07-28
 		return : rendered-result(text)
 	*/
 	__initlize.render = function(content, data){
-		if(global_pjt == null){
-			global_pjt = new _pjt();
-		}
-		return global_pjt.render(content, data);
+		return _pjt.render(content, data);
 	};
 
 
@@ -115,10 +107,9 @@ by anlige @ 2017-07-28
 			return '';
 		}
 		
-		var pjt = new _pjt();
-		contents = pjt.compile(contents);
+		contents = _pjt.compile(contents);
 
-		var result = pjt.render(contents, data);
+		var result = _pjt.render(contents, data);
 		if(typeof dest == 'function'){
 			dest(result);
 		}else{

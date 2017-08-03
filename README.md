@@ -25,13 +25,12 @@
 ###不借助helper
 ```javascript
 ///初始化实例
-var pjt = new Pjt();
 
 ///模板编译
-var code = pjt.compile(res);
+var code = Pjt.compile(res);
 
 ///渲染数据
-id('result2').innerHTML = pjt.render(code, data);
+id('result2').innerHTML = Pjt.render(code, data);
 ```
 
 ###借助helper(链式写法)
