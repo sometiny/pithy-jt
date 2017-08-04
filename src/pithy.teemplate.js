@@ -366,6 +366,9 @@ by anlige @ 2017-07-23
 			.replace(/>/g, '&gt;');
 		},
 		raw : function(src){
+			if(global_setting['escape'] !== true){
+				return src;
+			}
 			return new __raw(src);
 		}
 	};
@@ -548,7 +551,8 @@ by anlige @ 2017-07-23
 		}
 		return code;
 	};
-	
+
+	var global_objects = {};
 	__initlize.render = function(content, data){
 		if(!data || toString.call(data) != '[object Object]'){
 			throw 'Exception : data is invalid. it must be an objected-type.';
@@ -565,24 +569,32 @@ by anlige @ 2017-07-23
 		}
 		keys.push('Html');
 		values.push(helper);
+		for(var key in global_objects){
+			if(!global_objects.hasOwnProperty(key)){
+				continue;
+			}
+			keys.push(key);
+			values.push(global_objects[key]);
+		}
 		var wapper = new Function(keys, content);
 		return wapper.apply(null, values);
 	};
+	
 	helper.typeOf = __initlize.typeOf = function(ele){
 		return toString.call(ele);
 	};
+	
 	__initlize.register = function(name, func){
 		helper[name] = function(){
-			return new __raw(func.apply(helper, arguments));
+			var result = func.apply(helper, arguments);
+			if(global_setting['escape'] !== true){
+				return result;
+			}
+			return new __raw(result);
 		};
 	};
-	__initlize.invoke = function(name){
-		if(!helper.hasOwnProperty(name)){
-			return;
-		}
-		var args = slice.call(arguments, 0);
-		args.shift();
-		return helper[name].apply(this, args).text;
+	__initlize.registerObject = function(name, src){
+		global_objects[name] = src;
 	};
 	
 	__initlize.config = function(name, value){

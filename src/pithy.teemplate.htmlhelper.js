@@ -28,29 +28,14 @@ by anlige @ 2017-08-04
 		}
 		return ret;
 	}
-	_pjt.register('ActionLink', function(title, url, attrs){
-		return format("<a href=\"{0}\"{1}>{2}</a>", url, parseattrs(attrs), title);
-	});
-	_pjt.register('Form', function(name, action, method, attrs){
-		return format("<form name=\"{2}\" action=\"{0}\"{1} method=\"{3}\">", action, parseattrs(attrs), name, method || "GET");
-	});
-	_pjt.register('FormUpload', function(name, action, attrs){
-		return format("<form name=\"{2}\" action=\"{0}\"{1} method=\"POST\" enctype=\"multipart/form-data\">", action, parseattrs(attrs), name);
-	});
-	_pjt.register('FormEnd', function(){
-		return "</form>";
-	});
-	_pjt.register('Input', function(type, name, value, attrs){
+	var input = function(type, name, value, attrs){
 		var input = "<input type=\"" + type + "\"";
 		if(name) input += " name=\"" + name + "\"";
 		if(value) input += " value=\"" + value + "\"";
 		input += parseattrs(attrs);
 		return input + " />";
-	});
-	_pjt.register('CheckBox', function(name, value,attrs){
-		return _pjt.invoke('Input', "checkbox", name, value, attrs);
-	});
-	_pjt.register('DropDownList', function(name, list, selectedIndex, attrs){
+	};
+	var dropdownlist = function(name, list, selectedIndex, attrs){
 		selectedIndex = selectedIndex || 0;
 		var select = "<select name=\"" + name + "\"" + parseattrs(attrs) + ">";
 		var index=0;
@@ -66,34 +51,51 @@ by anlige @ 2017-08-04
 			}
 		}
 		return select + "</select>";
+	};
+	_pjt.register('ActionLink', function(title, url, attrs){
+		return format("<a href=\"{0}\"{1}>{2}</a>", url, parseattrs(attrs), title);
 	});
+	_pjt.register('Form', function(name, action, method, attrs){
+		return format("<form name=\"{2}\" action=\"{0}\"{1} method=\"{3}\">", action, parseattrs(attrs), name, method || "GET");
+	});
+	_pjt.register('FormUpload', function(name, action, attrs){
+		return format("<form name=\"{2}\" action=\"{0}\"{1} method=\"POST\" enctype=\"multipart/form-data\">", action, parseattrs(attrs), name);
+	});
+	_pjt.register('FormEnd', function(){
+		return "</form>";
+	});
+	_pjt.register('Input', input);
+	_pjt.register('CheckBox', function(name, value,attrs){
+		return input("checkbox", name, value, attrs);
+	});
+	_pjt.register('DropDownList', dropdownlist);
 	_pjt.register('ListBox', function(name, list, selectedIndex, attrs){
 		attrs = attrs || {};
 		attrs["multiple"] = "multiple";
-		return _pjt.invoke('DropDownList', name, list, selectedIndex, attrs);
+		return dropdownlist(name, list, selectedIndex, attrs);
 	});
 	_pjt.register('Hidden', function(name, value){
-		return _pjt.invoke('Input', "hidden", name, value);
+		return input("hidden", name, value);
 	});
 	_pjt.register('Password', function(name, value, attrs){
-		return _pjt.invoke('Input', "password", name, value, attrs);
+		return input("password", name, value, attrs);
 	});
 	_pjt.register('RadioButton', function(name, value, attrs){
-		return _pjt.invoke('Input', "radio", name, value, attrs);
+		return input("radio", name, value, attrs);
 	});
 	_pjt.register('TextArea', function(name, value, attrs){
 		return format("<textarea name=\"{0}\"{2}>{1}</textarea>", name, value, parseattrs(attrs));
 	});
 	_pjt.register('TextBox', function(name, value, attrs){
-		return _pjt.invoke('Input', "text", name, value, attrs);
+		return input("text", name, value, attrs);
 	});
 	_pjt.register('Button', function(name, value, attrs){
-		return _pjt.invoke('Input', "button", name, value, attrs);
+		return input("button", name, value, attrs);
 	});
 	_pjt.register('ResetButton', function(name, value, attrs){
-		return _pjt.invoke('Input', "reset", name, value, attrs);
+		return input("reset", name, value, attrs);
 	});
 	_pjt.register('SubmitButton', function(name, value, attrs){
-		return _pjt.invoke('Input', "submit", name, value, attrs);
+		return input("submit", name, value, attrs);
 	});
 })(window.Pjt);
