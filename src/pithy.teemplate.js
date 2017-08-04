@@ -602,6 +602,8 @@ by anlige @ 2017-07-23
 		name == 'escape' && (global_setting[name] = value !== false);
 		name == 'cache' && (global_setting[name] = value !== false);
 	};
+
+	__initlize.scanline = scanline;
 	
 	window.Pjt = __initlize;
 })((function(){
