@@ -2,6 +2,18 @@
 想起razor，手感还不错，写个差不多的东西
 
 没了解过编译原理，简单写了下，支持一些简单的语法检查。
+#文件结构
+```
+resources	几个演示代码常用的方法
+src	Pjt源码
+	pithy.ajax.js	非Pjt必须，一个好用的ajax请求插件
+	pithy.teemplate.js	Pjt核心，必须
+	pithy.teemplate.helper.js	非Pjt必须，一些方便的快速操作封装
+	pithy.teemplate.htmlhelper.js	非Pjt必须，快捷的Html表单元素生成
+demo.html	简单示例
+htmlhelper.html	Html表单生成示例
+index.html	在线编译渲染
+```
 
 #示例数据
 ```javascript
