@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="resources/utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.teemplate.htmlhelper.js" charset="utf-8"></script>
+
+	<title>Pithy.js.teemplate / htmlhelper / Demo</title>
+	<style type="text/css">
+		.container {width:100%; display: flex;}
+		.container>div{flex:1; padding-right:20px}
+		.container .result>textarea{width:100%;height:600px; padding:5px;outline:none;resize:none;font-family:'微软雅黑', arial;}
+	</style>
+</head>
+<body>
+	<h2>PjtHtmlhelper示例</h2>
+	<div class="container">
+		<div class="result render-result"><h3>渲染结果</h3><div id="result"></div></div>
+	</div>
+
+	<script>
+		var data = {
+			name : 'anlige',
+			list : [1,2,3],
+			propertys : { name : '姓名', age : '年龄'}
+		};
+		function __initlize(){
+			var codes = Pjt.compile(id('_template').innerHTML);
+			id('result').innerHTML = Pjt.render(codes, data);
+		}
+		on(window, 'load', __initlize);
+	</script>
+
+	<script type="text/template" id="_template">
+		<div>
+			@Html.Form('main-form', '/demo.html', 'get')
+			<p>@Html.Hidden('_Hidden', '1')</p>
+			<p>@Html.ActionLink('链接', '/demo.html')</p>
+			<p>文本框：@Html.TextBox('_TextBox', name)</p>
+			<p>密码框：@Html.Password('_Password', 'password')</p>
+			<p>下拉框：@Html.DropDownList('_DropDownList', list, 2)</p>
+			<p>下拉框：@Html.DropDownList('_DropDownList2', propertys, 1)</p>
+			<p>多选列表：@Html.ListBox('_ListBox', [1,2,3], 2)</p>
+			<p>复选框：@Html.CheckBox('_CheckBox', '1') 1 @Html.CheckBox('_CheckBox', '2') 2</p>
+			<p>单选框：@Html.RadioButton('_RadioButton', '1') 1 @Html.RadioButton('_RadioButton', '2') 2</p>
+			<p>文本域：@Html.TextArea('_TextArea', '文本域', {cols : 60, rows : 4})</p>
+			<p>
+			@Html.Button('_Button', '按钮') 
+			@Html.ResetButton(null, '重置') 
+			@Html.SubmitButton(null, '提交')
+			</p>
+			@Html.FormEnd()
+		</div>
+	</script>
+</body>
+</html>
