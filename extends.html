@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="resources/utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.ajax.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src/pithy.teemplate.extends.js" charset="utf-8"></script>
+
+	<title>Pithy.js.teemplate / extends Demo</title>
+	<style type="text/css">
+		a{color: blue; text-decoration: underline;cursor:pointer}
+	</style>
+</head>
+<body>
+	<a onclick="__render('default-layout')">任课教师</a> <a onclick="__render('classes')">学习成绩</a>
+	<div id="result"></div>
+	<script>
+		var data = {
+			title : 'Anlige',
+			subtitle : '教师列表',
+			description : '显示本学生的任课教师',
+			teachers : [
+				{ name : '张三', age : 32},
+				{ name : '李四', age : 23},
+				{ name : '王二', age : 45}
+			],
+			classes : [
+				{ name : '数学', score : 86},
+				{ name : '语文', score : 75},
+				{ name : '英语', score : 91}
+			]
+		}
+		function __render(name){
+			PjtExtends.render(name, data, function(res){
+				id('result').innerHTML = res;
+			});
+		}
+		function __initlize(res){
+			
+			PjtExtends.compileas(res);
+			__render('default-layout');
+		}
+		on(window, 'load', AJAX('layouts.html?r=' + Math.random(), __initlize));
+	</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+@* 主布局
+
+@layout default-layout
+<div class="main-layout">
+	<h3>@title</h3>
+
+	@section sub-title
+	<h4>@subtitle</h4>
+	@endsection
+
+	@section body
+	<p>@description</p>
+	<ul>
+		@each teachers as teacher{
+			<li>姓名：@teacher.name 年龄：@teacher.age</li>
+		}
+	</ul>
+	@endsection
+</div>
+
+
+
+@view classes extends default-layout
+@section sub-title
+<h4>学习成绩</h4>
+@endsection
+
+@section body
+<p>成绩列表</p>
+<ul>
+	@each classes as cls{
+		<li>名称：@cls.name 分数：@cls.score</li>
+	}
+</ul>
+@endsection
