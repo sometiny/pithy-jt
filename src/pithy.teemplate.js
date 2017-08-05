@@ -116,7 +116,9 @@ by anlige @ 2017-07-23
 		HTML : 'html',
 		LINE : 'line',
 		REGION : 'region',
-		ENDREGION : 'endregion'
+		ENDREGION : 'endregion',
+		COMMENT : 'comment',
+		HTMLEND : 'htmlend'
 	};
 	function next_token(token_type, words){
 		var token = '',
@@ -193,6 +195,11 @@ by anlige @ 2017-07-23
 				throw 'syntax error \'' + words.slice(start, end).join('') + '\'';
 			}
 			token_type.start++;
+			if(words[token_type.start] == '*'){
+				token_type.start++;
+				token_type.type = TOKEN.COMMENT;
+				return token_type;
+			};
 			
 			//in fact, it can be simplized
 			next_token(token_type, words);
@@ -433,8 +440,54 @@ by anlige @ 2017-07-23
 	}
 
 	var __CACHE__ = {};
+	var __SUBSCRIBERS = {};
+
+	function publish(token, words, line_num){
+		if(!__SUBSCRIBERS[token.type]){
+			return;
+		}
+
+		var users = __SUBSCRIBERS[token.type];
+		var i = 0, length = users.length;
+		var result = '';
+		for(var i = length - 1; i >= 0; i--){
+			users[i](token, words, line_num);
+		}
+	}
+	
 	function __initlize(){
 	}
+	__initlize.subscribe = function(token, callback){
+		if(typeof callback != 'function'){
+			throw 'Exception : subscribe failed. callback must be a function';
+		}
+		var users = __SUBSCRIBERS[token] || (__SUBSCRIBERS[token] = []);
+		
+		users.push(callback);
+		
+	};
+	
+	__initlize.unsubscribe = function(token, callback){
+		if(callback && typeof callback != 'function'){
+			throw 'Exception : unsubscribe failed. callback must be a function';
+		}
+		if(!__SUBSCRIBERS[token]){
+			return;
+		}
+		if(!callback){
+			__SUBSCRIBERS[token] = null;
+			return;
+		}
+		var users = __SUBSCRIBERS[token];
+		var i = 0, length = users.length;
+		for(var i = length - 1; i >= 0; i--){
+			if(users[i] != callback){
+				continue;
+			}
+			users.splice(i, 1);
+		}
+		
+	};
 	
 	__initlize.compile = function(content){
 		var _crc32 = '';
@@ -473,8 +526,16 @@ by anlige @ 2017-07-23
 			}catch(e){
 				throw exception(e, start, fullline);
 			}
-			var linetext = content.slice(_token.start, _token.end);
+			var linetext = null;
+			publish(_token, words, __LINE__);
+			if(_token.linetext === undefined){
+				linetext = content.slice(_token.start, _token.end);
+			}else{
+				linetext = _token.linetext;
+			}
 			switch(_token.type){
+				case TOKEN.COMMENT:
+					break;
 				case TOKEN.REGION : 
 					_region = true;
 					break;
@@ -604,6 +665,8 @@ by anlige @ 2017-07-23
 	};
 
 	__initlize.scanline = scanline;
+	__initlize.token = token;
+	__initlize.TOKEN = TOKEN;
 	
 	window.Pjt = __initlize;
 })((function(){
