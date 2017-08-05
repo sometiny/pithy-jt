@@ -411,8 +411,7 @@ by anlige @ 2017-07-23
 	}
 
 	function parse_foreach(line, type, __LINE__){
-		
-		var parts = /^(?:\s*)(.+?)(?:\s*)as(?:\s*)(?:([^\s]+?)(?:,(?:\s*)([^\s]+?))?)(?:\s*)\{$/.exec(line);
+		var parts = /^(?:\s*)(.+?)(?:\s*)as(?:\s*)(?:([^\s]+?)(?:(?:\s*),(?:\s*)([^\s]+?))?)(?:\s*)\{$/.exec(line);
 		if(!parts){
 			throw 'syntax error for \'foreach\' statement';
 		}
@@ -442,7 +441,7 @@ by anlige @ 2017-07-23
 	var __CACHE__ = {};
 	var __SUBSCRIBERS = {};
 
-	function publish(token, words, line_num){
+	function publish(token, words, line_num, fullline){
 		if(!__SUBSCRIBERS[token.type]){
 			return;
 		}
@@ -451,7 +450,7 @@ by anlige @ 2017-07-23
 		var i = 0, length = users.length;
 		var result = '';
 		for(var i = length - 1; i >= 0; i--){
-			users[i](token, words, line_num);
+			users[i](token, words, line_num, fullline);
 		}
 	}
 	
@@ -527,7 +526,7 @@ by anlige @ 2017-07-23
 				throw exception(e, start, fullline);
 			}
 			var linetext = null;
-			publish(_token, words, __LINE__);
+			publish(_token, words, __LINE__, fullline);
 			if(_token.linetext === undefined){
 				linetext = content.slice(_token.start, _token.end);
 			}else{
