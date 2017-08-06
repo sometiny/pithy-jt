@@ -189,7 +189,7 @@ Pithy.js.teemplate.js
 			if(requirement.length > 3 && requirement.slice(-3) != '.js'){
 				requirement += '.js';
 			}
-			AJAX(requirement + '?t=' + (+new Date()), (function(index, req_){
+			__initlize(requirement + '?t=' + (+new Date()), (function(index, req_){
 				return function(res){
 					load_script(req_, index, results, res);
 					completed++;
@@ -205,7 +205,7 @@ Pithy.js.teemplate.js
 		if(requirement.length > 3 && requirement.slice(-3) != '.js'){
 			requirement += '.js';
 		}
-		AJAX(requirement + '?t=' + (+new Date()), function(res){
+		__initlize(requirement + '?t=' + (+new Date()), function(res){
 			load_script(requirement, index, results, res);
 			next(index + 1);
 		});
