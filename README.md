@@ -1,7 +1,8 @@
 #PithyJt
-想起razor，手感还不错，写个差不多的东西
+Javascript模板引擎，模仿Razor语法，支持一些简单的语法检查，console可定位到语法错误行号。支持缓存，采用Crc32作缓存唯一性校验。  
+通过扩展，支持Html元素快捷生成，模板无限级继承。  
+不习惯Razor语法，可以通过扩展，使用hmtltag来定义模板。
 
-没了解过编译原理，简单写了下，支持一些简单的语法检查。
 #文件结构
 ```
 resources	几个演示代码常用的方法
@@ -9,9 +10,16 @@ src	Pjt源码
 	pithy.ajax.js	非Pjt必须，一个好用的ajax请求插件
 	pithy.teemplate.js	Pjt核心，必须
 	pithy.teemplate.helper.js	非Pjt必须，一些方便的快速操作封装
-	pithy.teemplate.htmlhelper.js	非Pjt必须，快捷的Html表单元素生成
-demo.html	简单示例
-htmlhelper.html	Html表单生成示例
+	pithy.teemplate.htmlhelper.js	非Pjt必须，快捷的Html表单元素生成，无需调用任何方法，引用后自动实现
+	pithy.teemplate.extends.js	非Pjt必须，实现Pjt继承功能的扩展
+	pithy.teemplate.htmltag.js	非Pjt必须，自动实现html标签模板功能的扩展，引用后自动实现，无需调用任何方法
+	
+demo	简单示例
+	extends.html	Pjt继承功能的扩展示例
+	htmlhelper.htmlhtml	Html表单元素生成示例
+	index.htmlhtml	基本示例
+	layouts.htmlhtml	用于extends示例的布局内容
+	
 index.html	在线编译渲染
 ```
 
