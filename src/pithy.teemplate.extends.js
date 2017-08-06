@@ -328,4 +328,9 @@ by anlige @ 2017-07-23
 
 	
 	window.PjtExtends = __initlize;
+	if(typeof module != 'undefined' && module){
+		module.exports = __initlize;
+		return;
+	}
+	return __initlize;
 })(window.Pjt);

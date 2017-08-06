@@ -3,17 +3,17 @@
 <head>
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript" src="resources/utils.js" charset="utf-8"></script>
-	<script type="text/javascript" src="src/pithy.ajax.js" charset="utf-8"></script>
-	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
-	<script type="text/javascript" src="src/pithy.teemplate.extends.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../resources/utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.ajax.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="demo.js" charset="utf-8"></script>
 
-	<title>Pithy.js.teemplate / extends Demo</title>
-	<style type="text/css">
-		a{color: blue; text-decoration: underline;cursor:pointer}
-	</style>
+	<title>Pithy.js.teemplate / extends / Demo</title>
 </head>
 <body>
+	<p id="nav-list"></p>
+	<h2>PjtExtends示例</h2>
+	<p>PjtExtends需要引用pithy.teemplate.extends.js文件</p>
 	<a onclick="__render('default-layout')">任课教师</a> <a onclick="__render('classes')">学习成绩</a>
 	<div id="result"></div>
 	<script>
@@ -42,7 +42,11 @@
 			PjtExtends.compileas(res);
 			__render('default-layout');
 		}
-		on(window, 'load', AJAX('layouts.html?r=' + Math.random(), __initlize));
+		
+		AJAX.require('../src/pithy.teemplate.extends.js', function(){
+			AJAX('layouts.html?r=' + Math.random(), __initlize);
+		});
+		
 	</script>
 </body>
 </html>

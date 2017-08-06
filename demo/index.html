@@ -3,18 +3,15 @@
 <head>
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script type="text/javascript" src="resources/utils.js" charset="utf-8"></script>
-	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
-	<script type="text/javascript" src="src/pithy.teemplate.helper.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../resources/utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.ajax.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="demo.js" charset="utf-8"></script>
 
 	<title>Pithy.js.teemplate / Demo</title>
-	<style type="text/css">
-		.container {width:100%; display: flex;}
-		.container>div{flex:1; padding-right:20px}
-		.container .result>textarea{width:100%;height:600px; padding:5px;outline:none;resize:none;font-family:'微软雅黑', arial;}
-	</style>
 </head>
 <body>
+	<p id="nav-list"></p>
 	<h2>Pjt示例</h2>
 	<div class="container">
 		<div class="result render-result"><h3>渲染结果</h3><div id="result"></div></div>
@@ -34,10 +31,9 @@
 				works : 9
 			}
 		};
-		function __initlize(){
-			PjtHelper.bind(data, '_template', 'result');
-		}
-		on(window, 'load', __initlize);
+		AJAX.require('../src/pithy.teemplate.helper.js', function(helper){
+			helper.bind(data, '_template', 'result');
+		});
 	</script>
 
 	<script type="text/template" id="_template">

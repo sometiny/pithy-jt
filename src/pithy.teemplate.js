@@ -668,6 +668,11 @@ by anlige @ 2017-07-23
 	__initlize.TOKEN = TOKEN;
 	
 	window.Pjt = __initlize;
+	if(typeof module != 'undefined' && module){
+		module.exports = __initlize;
+		return;
+	}
+	return __initlize;
 })((function(){
 	var Crc32Table=[], map_hex2 = [];
 	function MakeTable()

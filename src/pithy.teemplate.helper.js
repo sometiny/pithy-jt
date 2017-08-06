@@ -80,7 +80,9 @@ by anlige @ 2017-07-28
 	});
 
 	
-	var __initlize = function(){};
+	function __initlize(){
+		
+	};
 
 	__initlize.fill = fill;
 
@@ -137,8 +139,8 @@ by anlige @ 2017-07-28
 	/*
 		data : data need to be rendered
 		src  : html element, contains template text need to be compiled
-		dest : 	1¡¢html element, show rendered-result
-				2¡¢function, arg1 is rendered-result
+		dest : 	1 html element, show rendered-result
+				2 function, arg1 is rendered-result
 	*/
 	__initlize.bind = function(data, src, dest){
 
@@ -158,4 +160,9 @@ by anlige @ 2017-07-28
 	};
 	
 	window.PjtHelper = __initlize;
+	if(typeof module != 'undefined' && module){
+		module.exports = __initlize;
+		return;
+	}
+	return __initlize;
 })(window.Pjt);

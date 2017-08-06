@@ -5,6 +5,8 @@ Pithy.js.teemplate.js
 ;(function(){
 
 	var toString = Object.prototype.toString;
+	var slice = Array.prototype.slice;
+	var push = Array.prototype.push;
 	function create_request() {
 		var b = null;
 		if (window.XMLHttpRequest) {
@@ -179,5 +181,96 @@ Pithy.js.teemplate.js
 		}
 		req.send(data);
 	}
+	function require(requirements, length, callback){
+		
+		var results = [], requirement, completed = 0;
+		for(var i = 0; i < length; i++){
+			requirement = requirements[i];
+			if(requirement.length > 3 && requirement.slice(-3) != '.js'){
+				requirement += '.js';
+			}
+			AJAX(requirement + '?t=' + (+new Date()), (function(index, req_){
+				return function(res){
+					load_script(req_, index, results, res);
+					completed++;
+					if(completed == length && callback){
+						callback.apply(null, results);
+					}
+				};
+			})(i, requirement));
+		}
+	}
+
+	function _next(requirement, index, results,  next){
+		if(requirement.length > 3 && requirement.slice(-3) != '.js'){
+			requirement += '.js';
+		}
+		AJAX(requirement + '?t=' + (+new Date()), function(res){
+			load_script(requirement, index, results, res);
+			next(index + 1);
+		});
+	}
+
+	function next(requirements, length, callback){
+		var results = [], completed = 0;
+		function __next(index){
+			if(index == length && callback){
+				callback.apply(null, results);
+				return;
+			}
+			_next(requirements[index], index , results, __next);
+		};
+		_next(requirements[0], 0, results, __next);
+	}
+
+	function load_script(requirement, i, results, contents){
+		var module = { exports : {} };
+		var return_value = (new Function('module', 'exports', 'requirement', contents ))(module, module.exports, requirement);
+		results[i] = return_value === undefined ? module.exports : return_value;
+	}
+
+	function arguments_parser(args, func){
+		var length = args.length;
+		if(length < 1){
+			return;
+		}
+		
+		var requirements = [], callback = null, base = null, argc, argt, requires_is_array;
+
+		for(var i = 0; i < length; i++){
+			argc = args[i];
+			argt = toString.call(argc);
+			switch(argt){
+				case '[object Array]' :
+					requires_is_array = true;
+					push.apply(requirements, argc);
+					break;
+				case '[object String]' :
+					if(requires_is_array){
+						base = argc;
+						break;
+					}
+					requirements.push(argc);
+					break;
+				case '[object Function]' :
+					callback = argc;
+					break;
+			}
+		}
+		length = requirements.length;
+		if(base){
+			for(var i=0; i < length; i++){
+				requirements[i] = base + requirements[i];
+			}
+		}
+		func(requirements, length, callback);
+	}
+	__initlize.require = function(){
+		arguments_parser(arguments, require);
+	};
+	__initlize.next = function(){
+		arguments_parser(arguments, next);
+	};
+	
 	window.AJAX = __initlize;
 })();
