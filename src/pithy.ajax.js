@@ -181,33 +181,71 @@ Pithy.js.teemplate.js
 		}
 		req.send(data);
 	}
+
+	var __CACHE__ = {};
+	var __base = window.location.href + '';
+	__base = __base.substr(0, __base.lastIndexOf('/')) + '/';
+	__base = __base.substr(__base.indexOf('//') + 2);
+	__base = __base.substr(__base.indexOf('/'));
+	function path(file, base){
+		if(file.substr(0, 1) == '/' || /^http(s)?\:\/\//.test(file)){
+			return file;
+		}
+		file = (base || '') + file;
+		file = file.replace(/\/{2,}/g, '/');
+		var reg = /\/([^\/]+)\/\.\.\//;
+		while(reg.test(file)){
+			file = file.replace(reg, '/');
+		}
+		file = file.replace(/\/(\.+)\//, '/');
+		return file;
+	}
+	
 	function require(requirements, length, callback){
 		
 		var results = [], requirement, completed = 0;
+		function _callback(){
+			completed++;
+			if(completed == length){
+				callback && callback.apply(null, results);
+			}
+		}
 		for(var i = 0; i < length; i++){
 			requirement = requirements[i];
 			if(requirement.length > 3 && requirement.slice(-3) != '.js'){
 				requirement += '.js';
 			}
-			__initlize(requirement + '?t=' + (+new Date()), (function(index, req_){
-				return function(res){
-					load_script(req_, index, results, res);
-					completed++;
-					if(completed == length){
-						callback && callback.apply(null, results);
-					}
-				};
-			})(i, requirement));
+			if(__CACHE__[requirement]){
+				results[i] = __CACHE__[requirement];
+				completed++;
+				if(completed == length){
+					callback && callback.apply(null, results);
+				}
+				continue;
+			}
+			require_one(i, requirement, results,  _callback);
 		}
+	}
+
+	function require_one(i, requirement, results,  callback){
+		__initlize(requirement + '?t=' + (+new Date()), function(res){
+			load_module(requirement, i, results, res, callback);
+		});
 	}
 
 	function _next(requirement, index, results,  next){
 		if(requirement.length > 3 && requirement.slice(-3) != '.js'){
 			requirement += '.js';
 		}
-		__initlize(requirement + '?t=' + (+new Date()), function(res){
-			load_script(requirement, index, results, res);
+		if(__CACHE__[requirement]){
+			results[index] = __CACHE__[requirement];
 			next(index + 1);
+			return;
+		}
+		__initlize(requirement + '?t=' + (+new Date()), function(res){
+			load_module(requirement, index, results, res, function(i){
+				next(i + 1);
+			});
 		});
 	}
 
@@ -222,11 +260,51 @@ Pithy.js.teemplate.js
 		};
 		__next(0);
 	}
-
-	function load_script(requirement, i, results, contents){
+	
+	function load_module(requirement, i, results, contents, callback){
+		var defined = false;
 		var module = { exports : {} };
-		var return_value = (new Function('module', 'exports', 'requirement', contents ))(module, module.exports, requirement);
-		results[i] = return_value === undefined ? module.exports : return_value;
+		var _callback = function(return_value){
+			results[i] = return_value === undefined ? module.exports : return_value;
+			__CACHE__[requirement] = results[i];
+			callback(i);
+		}
+		var define = function(){
+			defined = true;
+			var args = slice.call(arguments, 0);
+			if(args.length > 0 && typeof args[0] == 'string'){
+				args.shift();
+			}
+			var fn = null, length = args.length;
+			if(length == 0){
+				throw 'Exception : define last argument error';
+			}
+			var last = args.pop();
+			if(typeof last != 'function'){
+				_callback(last);
+				return;
+			}
+			
+			fn = last;
+			if(length == 1){
+				_callback(fn());
+				return;
+			}
+			
+			args.push(function(){
+				_callback(fn.apply(null, arguments));
+			});
+			arguments_parser(args, require);
+			return;
+		};
+
+		var args = ['module', 'exports', 'requirement', 'define'], 
+			values = [module, module.exports, requirement, define];
+		var return_value = (new Function(args, contents )).apply(null, values);
+		if(defined){
+			return;
+		}
+		_callback(return_value);
 	}
 
 	function arguments_parser(args, func){
@@ -261,10 +339,8 @@ Pithy.js.teemplate.js
 		if(length == 0){
 			return;
 		}
-		if(base){
-			for(var i=0; i < length; i++){
-				requirements[i] = base + requirements[i];
-			}
+		for(var i=0; i < length; i++){
+			requirements[i] = path(requirements[i], base || __base);
 		}
 		func(requirements, length, callback);
 	}
@@ -273,6 +349,18 @@ Pithy.js.teemplate.js
 	};
 	__initlize.next = function(){
 		arguments_parser(arguments, next);
+	};
+	__initlize.base = function(value){
+		if(value === undefined){
+			return __base;
+		}
+		if(!value){
+			return;
+		}
+		if(value.substr(value.length - 1) != '/'){
+			value += '/';
+		}
+		__base = value;
 	};
 	
 	window.AJAX = __initlize;
