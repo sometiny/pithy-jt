@@ -4,12 +4,18 @@ Javascript模板引擎，模仿Razor语法，支持一些简单的语法检查�
 不习惯Razor语法，可以通过扩展，使用hmtltag来定义模板。  
 
 #用法
-编译模板
+
+引用Pjt：  
+```html
+<script src="pithy.teemplate.js"></script>
+```
+
+编译模板：  
 ```javascript
 var codes = Pjt.compile('<h3>@title</h3><p>@description</p>');
 ```
 
-渲染数据
+渲染数据：  
 ```javascript
 var text = Pjt.render(codes, {
 	title : '标题Pjt', 
