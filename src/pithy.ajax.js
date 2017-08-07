@@ -187,12 +187,15 @@ Pithy.js.teemplate.js
 	__base = __base.substr(0, __base.lastIndexOf('/')) + '/';
 	__base = __base.substr(__base.indexOf('//') + 2);
 	__base = __base.substr(__base.indexOf('/'));
+
+	var __current = __base;
+	
 	function path(file, base){
 		if(file.substr(0, 1) == '/' || /^http(s)?\:\/\//.test(file)){
 			return file;
 		}
 		file = (base || '') + file;
-		file = file.replace(/\/{2,}/g, '/');
+		file = file.replace(/\\/g, '/').replace(/\/{2,}/g, '/');
 		var reg = /\/([^\/]+)\/\.\.\//;
 		while(reg.test(file)){
 			file = file.replace(reg, '/');
@@ -269,6 +272,10 @@ Pithy.js.teemplate.js
 			__CACHE__[requirement] = results[i];
 			callback(i);
 		}
+		if(toString.call(contents) == '[object Object]'){
+			_callback(contents);
+			return;
+		}
 		var define = function(){
 			defined = true;
 			var args = slice.call(arguments, 0);
@@ -338,6 +345,9 @@ Pithy.js.teemplate.js
 		length = requirements.length;
 		if(length == 0){
 			return;
+		}
+		if(base){
+			base = path(base, __current);
 		}
 		for(var i=0; i < length; i++){
 			requirements[i] = path(requirements[i], base || __base);
