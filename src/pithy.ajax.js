@@ -155,7 +155,7 @@ Pithy.js.teemplate.js
 		try{
 			req.open(method, url, true);
 		}catch(e){
-			error && error.call(req);
+			error && error.call(req, e);
 			req = null;
 			return;
 		}
@@ -233,7 +233,7 @@ Pithy.js.teemplate.js
 	function require_one(i, requirement, results,  callback){
 		__initlize(requirement + '?t=' + (+new Date()), function(res){
 			load_module(requirement, i, results, res, callback);
-		});
+		}, function(e){throw e;});
 	}
 
 	function _next(requirement, index, results,  next){
@@ -249,7 +249,7 @@ Pithy.js.teemplate.js
 			load_module(requirement, index, results, res, function(i){
 				next(i + 1);
 			});
-		});
+		}, function(e){throw e;});
 	}
 
 	function next(requirements, length, callback){
@@ -370,7 +370,7 @@ Pithy.js.teemplate.js
 		if(value.substr(value.length - 1) != '/'){
 			value += '/';
 		}
-		__base = value;
+		__base = path(value, __current);
 	};
 	
 	window.AJAX = __initlize;
