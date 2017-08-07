@@ -23,6 +23,14 @@ demo	简单示例
 index.html	在线编译渲染
 ```
 
+src目录中的**pithy.teemplate.js**为核心文件，Pjt必须。  
+目录中的其他文件均为扩展。  
+其中**pithy.ajax.js**是一个简单的ajax请求库，内置了require，可以用来引用AMD规范的模块。  
+
+**pithy.teemplate.*.js**  四个扩展库，可扩展Pjt的功能。可以通过script标签直接引用，也可以用AJAX.require引用。
+
+
+
 #示例数据
 ```javascript
 {
