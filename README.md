@@ -1,7 +1,26 @@
 #PithyJt
 Javascript模板引擎，模仿Razor语法，支持一些简单的语法检查，console可定位到语法错误行号。支持缓存，采用Crc32作缓存唯一性校验。  
 通过扩展，支持Html元素快捷生成，模板无限级继承。  
-不习惯Razor语法，可以通过扩展，使用hmtltag来定义模板。
+不习惯Razor语法，可以通过扩展，使用hmtltag来定义模板。  
+
+#用法
+编译模板
+```javascript
+var codes = Pjt.compile('<h3>@title</h3><p>@description</p>');
+```
+
+渲染数据
+```javascript
+var text = Pjt.render(codes, {
+	title : '标题Pjt', 
+	description : '描述：一个Razor语法的Javscript模板引擎'
+});
+```
+
+输出结果：  
+```html
+<h3>标题Pjt</h3><p>描述：一个Razor语法的Javscript模板引擎</p>
+```
 
 #文件结构
 ```
