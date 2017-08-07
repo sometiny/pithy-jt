@@ -193,8 +193,8 @@ Pithy.js.teemplate.js
 				return function(res){
 					load_script(req_, index, results, res);
 					completed++;
-					if(completed == length && callback){
-						callback.apply(null, results);
+					if(completed == length){
+						callback && callback.apply(null, results);
 					}
 				};
 			})(i, requirement));
@@ -214,13 +214,13 @@ Pithy.js.teemplate.js
 	function next(requirements, length, callback){
 		var results = [], completed = 0;
 		function __next(index){
-			if(index == length && callback){
-				callback.apply(null, results);
+			if(index == length){
+				callback && callback.apply(null, results);
 				return;
 			}
 			_next(requirements[index], index , results, __next);
 		};
-		_next(requirements[0], 0, results, __next);
+		__next(0);
 	}
 
 	function load_script(requirement, i, results, contents){
@@ -258,6 +258,9 @@ Pithy.js.teemplate.js
 			}
 		}
 		length = requirements.length;
+		if(length == 0){
+			return;
+		}
 		if(base){
 			for(var i=0; i < length; i++){
 				requirements[i] = base + requirements[i];
