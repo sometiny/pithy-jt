@@ -101,43 +101,11 @@ Pithy.js.teemplate.js
 		var url, callback, error, method, data = null, headers, argtype, argvalue;
 		for(var i=0; i < arguments.length; i++){
 			argvalue = arguments[i];
-			argtype = typeof argvalue;
-			if(argtype == 'string'){
-				if(!url){
-					url = argvalue;
-					continue;
-				}
-				if(!method){
-					method = argvalue;
-					continue;
-				}
-				if(!data){
-					data = argvalue;
-					continue;
-				}
-				continue;
-			}
-			if(argtype == 'function'){
-				if(!callback){
-					callback = argvalue;
-					continue;
-				}
-				if(!error){
-					error = argvalue;
-					continue;
-				}
-			}
-			if(argtype == 'object' && argvalue){
-				var objecttype = toString.call(argvalue);
-				if(objecttype == '[object Object]' && !data){
-					data = encode_object(argvalue);
-					continue;
-				}
-				if(objecttype == '[object Array]'){
-					headers = argvalue;
-					continue;
-				}
-			}
+			argtype = get_type(toString.call(argvalue));
+			(argtype == 'string') && ((!url && (url = argvalue)) || (!method && (method = argvalue)) || (!data && (data = argvalue))) ||
+			(argtype == 'function') && ((!callback && (callback = argvalue)) || (!error && (error = argvalue))) ||
+			(argtype == 'array') && (headers = argvalue) ||
+			(argtype == 'object' && !data) && (data = encode_object(argvalue));
 		}
 		
 		method = method ? method.toUpperCase() : 'GET';
@@ -324,23 +292,11 @@ Pithy.js.teemplate.js
 
 		for(var i = 0; i < length; i++){
 			argc = args[i];
-			argt = toString.call(argc);
-			switch(argt){
-				case '[object Array]' :
-					requires_is_array = true;
-					push.apply(requirements, argc);
-					break;
-				case '[object String]' :
-					if(requires_is_array){
-						base = argc;
-						break;
-					}
-					requirements.push(argc);
-					break;
-				case '[object Function]' :
-					callback = argc;
-					break;
-			}
+			argt = get_type(toString.call(argc));
+			(argt == 'array') && (requires_is_array = true, push.apply(requirements, argc)) ||
+			(argt == 'string' && requires_is_array) && (base = argc) || 
+			(argt == 'string') && (requirements.push(argc)) || 
+			(argt == 'function') && (callback = argc);
 		}
 		length = requirements.length;
 		if(length == 0){
