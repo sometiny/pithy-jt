@@ -205,7 +205,7 @@ by anlige @ 2017-07-23
 		return token_type;
 	}
 
-	function line(start, end, words){
+	function line(start, end, words, result){
 		if(start == end){
 			return [];
 		}
@@ -214,7 +214,6 @@ by anlige @ 2017-07-23
 			index = start, 
 			token = '', 
 			chr = '',
-			result = [], 
 			part = '', 
 			part_end = 0,
 			variable_expression = '', 
@@ -253,7 +252,6 @@ by anlige @ 2017-07-23
 		if(part){
 			result.push(VARIABLE_NAME + ' += "' + part.replace(/"/g, '\\"') + '";');
 		}
-		return result;
 	}
 	
 	
@@ -581,7 +579,7 @@ by anlige @ 2017-07-23
 						if(!trim_start && emptys){
 							result.push(VARIABLE_NAME + ' += "' + emptys + '";');
 						}
-						push.apply(result, line(_token.start, _token.end, words));
+						line(_token.start, _token.end, words, result);
 						result.push(VARIABLE_NAME + ' += "\\n";');
 					}catch(e){
 						if(typeof e == 'string'){
