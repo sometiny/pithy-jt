@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link href="demo.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../resources/utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.ajax.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/pithy.teemplate.js" charset="utf-8"></script>
+	<script type="text/javascript" src="demo.js" charset="utf-8"></script>
+
+	<title>Pithy.js.teemplate / htmltag / Demo</title>
+</head>
+<body>
+	<p id="nav-list"></p>
+	<h2>Html标签语法兼容模板</h2>
+	<p>需要引用pithy.teemplate.htmltag.js文件，文件引用后即自动扩展Pjt，不需要调用任何方法</p>
+	<div class="container">
+		<div class="result render-result"><h3>渲染结果</h3><div id="result"></div></div>
+	</div>
+
+	<script>
+		var data = {
+			name : 'anlige',
+			list : [1,2,3],
+			propertys : { name : '姓名', age : '年龄'}
+		};
+		function __initlize(){
+			var codes = Pjt.compile(id('_template').innerHTML);
+			id('result').innerHTML = Pjt.render(codes, data);
+		}
+
+		//也可以直接使用script标签引用
+		AJAX.require('../src/pithy.teemplate.htmltag.js', __initlize);
+	</script>
+
+	<script type="text/template" id="_template">
+		<if condition="name == 'anlige'">
+			<p>my name is @name</p>
+		<else name="1" />
+			<p>my name is not @name</p>
+		</if>
+
+		<foreach name="propertys" key="key" value="value">
+		<p>@key = @value</p>
+		</foreach>
+
+		@foreach propertys as key, value{
+			<p>@key = @value</p>
+		}
+	</script>
+</body>
+</html>
