@@ -148,18 +148,9 @@ by anlige @ 2017-07-23
 			token += words[start];
 			start++;
 		}
-		switch(token){
-			case 'if' :
-			case 'for' :
-			case 'switch' :
-			case 'while' :
-			case 'foreach' :
-			case 'each' :
-			case 'region' :
-			case 'endregion' :
-				token_type.start = start;
-				token_type.type = token;
-				break;
+		if(TOKEN.hasOwnProperty(token.toUpperCase())){
+			token_type.start = start;
+			token_type.type = token;
 		}
 	}
 	function token(start, end, words){
@@ -460,6 +451,11 @@ by anlige @ 2017-07-23
 		if(typeof callback != 'function'){
 			throw 'Exception : subscribe failed. callback must be a function';
 		}
+		token = token.toLowerCase();
+		var _token = token.toUpperCase();
+		if(!TOKEN.hasOwnProperty(_token)){
+			TOKEN[_token] = token;
+		}
 		var users = __SUBSCRIBERS[token] || (__SUBSCRIBERS[token] = []);
 		
 		users.push(callback);
@@ -470,6 +466,7 @@ by anlige @ 2017-07-23
 		if(callback && typeof callback != 'function'){
 			throw 'Exception : unsubscribe failed. callback must be a function';
 		}
+		token = token.toLowerCase();
 		if(!__SUBSCRIBERS[token]){
 			return;
 		}

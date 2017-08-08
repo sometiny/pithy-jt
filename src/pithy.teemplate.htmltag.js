@@ -10,7 +10,7 @@ by anlige @ 2017-08-05
 	}
 	var TOKEN = _pjt.TOKEN;
 	var operate_map = { eq : '==', neq : '!=', gt : '>', egt : '>=', lt : '<', elt : '<='};
-	var tags = { eq : '==', neq : '!=', gt : '>', egt : '>=', lt : '<', elt : '<=', 'if' : 'if', 'each' : 'each', 'foreach' : 'foreach', 'for' : 'for'};
+	var tags = { eq : '==', neq : '!=', gt : '>', egt : '>=', lt : '<', elt : '<=', 'if' : 'if', 'each' : 'each', 'foreach' : 'foreach', 'for' : 'for','else' : 'else'};
 
 	function parsehtmltag(token, words, line){
 		if(!tags[token.html_tag]){
@@ -64,10 +64,6 @@ by anlige @ 2017-08-05
 			case 'foreach' :
 			case 'for' :
 				token.linetext = '}';
-				token.type = TOKEN.CODE;
-				break;
-			case 'else' :
-				token.linetext = '}else{';
 				token.type = TOKEN.CODE;
 				break;
 		}
@@ -125,8 +121,8 @@ by anlige @ 2017-08-05
 				break;
 			case 'each' :
 			case 'foreach' :
-				if(!props.name || !props.value){
-					throw exception_name_value_missing(line, fullline);
+				if(!props.name){
+					throw exception_prop_missing('name', line, fullline);
 				}
 				token.type = tag;
 				var args = [];
@@ -136,9 +132,13 @@ by anlige @ 2017-08-05
 					args.push(props.key);
 					args.push(',');
 				}
-				args.push(props.value);
+				args.push(props.value || 'value');
 				args.push('{');
 				token.linetext = args.join(' ');
+				break;
+			case 'else' :
+				token.linetext = '}else{';
+				token.type = TOKEN.CODE;
 				break;
 		}
 	}
