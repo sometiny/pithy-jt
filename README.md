@@ -1,9 +1,9 @@
-#PithyJt
+# PithyJt
 Javascript模板引擎，模仿Razor语法，支持一些简单的语法检查，console可定位到语法错误行号。支持缓存，采用Crc32作缓存唯一性校验。  
 通过扩展，支持Html元素快捷生成，模板无限级继承。  
 不习惯Razor语法，可以通过扩展，使用hmtltag来定义模板。  
 
-#用法
+# 用法
 
 引用Pjt：  
 ```html
@@ -28,7 +28,7 @@ var text = Pjt.render(codes, {
 <h3>标题Pjt</h3><p>描述：一个Razor语法的Javscript模板引擎</p>
 ```
 
-#文件结构
+# 文件结构
 ```
 resources	几个演示代码常用的方法
 src	Pjt源码
@@ -56,7 +56,7 @@ src目录中的**pithy.teemplate.js**为核心文件，Pjt必须。
 
 
 
-#示例数据
+# 示例数据
 ```javascript
 {
 	name : 'anlige',
@@ -73,9 +73,9 @@ src目录中的**pithy.teemplate.js**为核心文件，Pjt必须。
 }
 ```
 
-#JavaScript调用方法
+# JavaScript调用方法
 
-###不借助helper
+### 不借助helper
 ```javascript
 ///初始化实例
 
@@ -86,7 +86,7 @@ var code = Pjt.compile('<p>@name</p>');
 id('result2').innerHTML = Pjt.render(code, {name : 'Jazor'});
 ```
 
-###借助helper(链式写法)
+### 借助helper(链式写法)
 ```javascript
 
 PjtHelper
@@ -96,7 +96,7 @@ PjtHelper
 ```
 appendTo方法把渲染后的数据赋值给result标签。
 
-###借助helper(非链式写法)
+### 借助helper(非链式写法)
 ```javascript
 ///编译
 var render = PjtHelper.compile('<p>@name</p>');
@@ -109,7 +109,7 @@ id('result3').innerHTML = appender;
 ```
 直接把appender赋值给result3标签。
 
-###bind方法
+### bind方法
 ```javascript
 
 /*
@@ -129,8 +129,8 @@ PjtHelper.bind({name : 'Jazor'}, '_template', function(res){
 ```
 
 
-#模板语法类似Razor语法，不过比较宽松
-###赋值
+# 模板语法类似Razor语法，不过比较宽松
+### 赋值
 ```
 <div>name = @name</div>
 <div>age = @age</div>
@@ -141,7 +141,7 @@ PjtHelper.bind({name : 'Jazor'}, '_template', function(res){
  支持基本的表达式，必要情况下可以使用“()”来作为表达式界定符。
  模板中输出@符号，请使用@@。
 
-###代码块
+### 代码块
 ```
 @{
 	var r = 255, g = 0, b = 0;
@@ -150,7 +150,7 @@ PjtHelper.bind({name : 'Jazor'}, '_template', function(res){
 ```
 使用@紧跟{作为一个代码块，代码块需要}结束。
 
-###HTML块
+### HTML块
 ```
 @region 
 <script>
@@ -161,7 +161,7 @@ var name = 'anlige';
  使用@region标识一个HTML代码块的开始，@endregion之前的所有代码仅仅被当做普通文本行，但参与变量渲染。
  主要用来在模板中引用style或script标签，当然，不建议在模板中引用，模板中尽量只有html标签。
 
-###if语句
+### if语句
 ```
 @if( age > 23){
 	<p>大于23岁</p>
@@ -170,7 +170,7 @@ var name = 'anlige';
 }
 ```
 
-###for语句(原生js)
+### for语句(原生js)
 ```
 <ul>
 @for(var i = 0; i < list.length; i++){
@@ -178,7 +178,7 @@ var name = 'anlige';
 }
 </ul>
 ```
-###each语句(用于数组)
+### each语句(用于数组)
 ```
 <ul>
 @each list as value{
@@ -193,7 +193,7 @@ var name = 'anlige';
 }
 </ul>
 ```
-###foreach语句(用于普通js对象，这里就叫键值对对象吧)
+### foreach语句(用于普通js对象，这里就叫键值对对象吧)
 ```
 <ul>
 @foreach basic as key, value{
