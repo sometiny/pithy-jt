@@ -111,7 +111,6 @@ by anlige @ 2017-07-23
 		EACH : 'each',
 		SWITCH : 'switch',
 		WHILE : 'while',
-		NORMAL : 'normal',
 		CODE : 'code',
 		HTML : 'html',
 		LINE : 'line',
@@ -201,7 +200,7 @@ by anlige @ 2017-07-23
 				token_type.start = start;
 			}
 		}else{
-			token_type.type = TOKEN.NORMAL;
+			token_type.type = TOKEN.CODE;
 		}
 		return token_type;
 	}
@@ -548,7 +547,6 @@ by anlige @ 2017-07-23
 				case TOKEN.SWITCH : 
 				case TOKEN.WHILE : 
 					linetext = _token.type + linetext;
-				case TOKEN.NORMAL : 
 				case TOKEN.CODE : 
 					if(!_region){
 						try{
