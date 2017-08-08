@@ -118,7 +118,8 @@ by anlige @ 2017-07-23
 		REGION : 'region',
 		ENDREGION : 'endregion',
 		COMMENT : 'comment',
-		HTMLEND : 'htmlend'
+		HTMLEND : 'htmlend',
+		SKIP : 'skip'
 	};
 	function next_token(token_type, words){
 		var token = '',
@@ -207,11 +208,10 @@ by anlige @ 2017-07-23
 
 	function line(start, end, words, result){
 		if(start == end){
-			return [];
+			return;
 		}
 
-		var length = end, 
-			index = start, 
+		var index = start, 
 			token = '', 
 			chr = '',
 			part = '', 
@@ -219,22 +219,19 @@ by anlige @ 2017-07-23
 			variable_expression = '', 
 			escape = global_setting.escape;
 		
-		while(true){
-			if(index== length){
-				break;
-			}
+		while(index < end){
 			chr = words[index];
 			if(chr == '@'){
-				if(index < length - 1 && words[index + 1] == '@'){
+				if(index < end - 1 && words[index + 1] == '@'){
 					part += '@';
 					index += 2;
 					continue;
 				}
-				if(index == length - 1){
+				if(index == end - 1){
 					part += '@';
 					break;
 				}
-				part_end = check_syntax(index + 1, words.length, words, []);
+				part_end = check_syntax(index + 1, end, words, []);
 				if(part_end > index + 1){
 					result.push(VARIABLE_NAME + ' += "' + part.replace(/"/g, '\\"') + '";');
 					variable_expression = words.slice(index + 1, part_end).join('');
@@ -265,10 +262,7 @@ by anlige @ 2017-07-23
 		
 		verify = verify === true;
 		var first_chr = '';
-		while(true){
-			if(start >= end){
-				break;
-			}
+		while(start < end){
 			chr = words[start];
 			if(!first_chr && chr == '('){
 				first_chr = chr;
@@ -430,7 +424,7 @@ by anlige @ 2017-07-23
 	var __CACHE__ = {};
 	var __SUBSCRIBERS = {};
 
-	function publish(token, words, line_num, fullline){
+	function publish(token){
 		if(!__SUBSCRIBERS[token.type]){
 			return;
 		}
@@ -439,7 +433,7 @@ by anlige @ 2017-07-23
 		var i = 0, length = users.length;
 		var result = '';
 		for(var i = length - 1; i >= 0; i--){
-			users[i](token, words, line_num, fullline);
+			users[i].apply(null, arguments);
 		}
 	}
 	
@@ -521,13 +515,14 @@ by anlige @ 2017-07-23
 				throw exception(e, start, fullline);
 			}
 			var linetext = null;
-			publish(_token, words, __LINE__, fullline);
+			publish(_token, words, __LINE__, fullline, result);
 			if(_token.linetext === undefined){
 				linetext = content.slice(_token.start, _token.end);
 			}else{
 				linetext = _token.linetext;
 			}
 			switch(_token.type){
+				case TOKEN.SKIP:
 				case TOKEN.COMMENT:
 					break;
 				case TOKEN.REGION : 
@@ -661,6 +656,18 @@ by anlige @ 2017-07-23
 	__initlize.scanline = scanline;
 	__initlize.token = token;
 	__initlize.TOKEN = TOKEN;
+	__initlize.line = function(){
+		var length = arguments.length;
+		if(length != 2 && length != 4){
+			return;
+		}
+		if(length == 2){
+			var words = arguments[0].split('');
+			line.call(__initlize, 0, words.length, words, arguments[1]);
+			return;
+		}
+		line.apply(__initlize, arguments);
+	};
 	
 	window.Pjt = __initlize;
 	if(typeof module != 'undefined' && module){
