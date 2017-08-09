@@ -419,7 +419,8 @@ by anlige @ 2017-07-23
 			key = '__key_' + lineno;
 		}
 		if(type == TOKEN.EACH){
-			result.putCode('for(var ' + key + ' = 0; ' + key + ' < ' + variable_name + '.length; ' + key + '++){');
+			result.putCode('var ' + key + '_length = ' + variable_name + '.length;');
+			result.putCode('for(var ' + key + ' = 0; ' + key + ' < ' + key + '_length; ' + key + '++){');
 		}else{
 			result.putCode('for(var ' + key + ' in ' + variable_name + '){');
 			result.putCode('if(!' + variable_name + '.hasOwnProperty(' + key + ')) continue;');
