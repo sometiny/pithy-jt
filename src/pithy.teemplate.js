@@ -7,7 +7,6 @@ by anlige @ 2017-07-23
 
 ;(function(crc32){
 	var global_setting = {
-		trim_start : true,
 		escape : true,
 		cache : true
 	};
@@ -28,7 +27,7 @@ by anlige @ 2017-07-23
 	var VARIABLE_NAME = '__con__';
 
 	
-	//map something
+	/*map something*/
 	var token_chars = '0123456789qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM_';
 	var token_chars_map = {};
 	var operate_chars = '+-*/%\\^|&!.?|=:~ <>,';
@@ -47,7 +46,7 @@ by anlige @ 2017-07-23
 		if(!content || typeof content != 'string'){
 			return;
 		}
-		var _callback = function(start, end, words, line_num, emptys){
+		var _callback = function(start, end, words, lineno){
 			if(start == end){
 				return;
 			}
@@ -59,7 +58,7 @@ by anlige @ 2017-07-23
 					break;
 				}
 			}
-			callback(start, last + 1, words, line_num, emptys);
+			callback(start, last + 1, words, lineno);
 		};
 		var words = content.split('');
 		var length = words.length;
@@ -70,16 +69,14 @@ by anlige @ 2017-07-23
 		var line = '';
 		var start = 0;
 		var newline = true; 
-		var line_num = 0;
-		var emptys = '';
+		var lineno = 0;
 		while(true){
 			chr = words[index];
 			if(	newline_chars[chr]){
 				newline = true;
-				line_num++;
-				_callback(start, index, words, line_num, emptys);
+				lineno++;
+				_callback(start, index, words, lineno);
 				start = index + 1;
-				emptys = '';
 				
 				if(chr == '\r'){
 					if(index < length - 1 && words[index + 1] == '\n'){
@@ -88,7 +85,6 @@ by anlige @ 2017-07-23
 					}
 				}
 			}else if(newline && empty_chars[chr]){
-				emptys += chr;
 				start++;
 				
 			}else{
@@ -98,8 +94,8 @@ by anlige @ 2017-07-23
 			index++;
 			
 			if(index >= length){
-				line_num++;
-				_callback(start, index, words, line_num, emptys);
+				lineno++;
+				_callback(start, index, words, lineno);
 				break;
 			}
 		}
@@ -153,7 +149,7 @@ by anlige @ 2017-07-23
 			token_type.type = token;
 		}
 	}
-	function token(start, end, words){
+	function token(start, end, words, lineno){
 		var chr = words[start];
 		var token_type = {
 			start : start,
@@ -183,7 +179,7 @@ by anlige @ 2017-07-23
 		}
 		else if(chr == '@'){
 			if(start + 1 == end){
-				throw 'syntax error \'' + words.slice(start, end).join('') + '\'';
+				throw exception('syntax error', lineno, words.slice(start, end).join(''));
 			}
 			token_type.start++;
 			if(words[token_type.start] == '*'){
@@ -192,10 +188,9 @@ by anlige @ 2017-07-23
 				return token_type;
 			};
 			
-			//in fact, it can be simplized
+			/*in fact, it can be simplized*/
 			next_token(token_type, words);
 			if(token_type.type == ''){
-				//throw 'error on line : ' + words.slice(start, end).join('');
 				token_type.type = TOKEN.LINE;
 				token_type.start = start;
 			}
@@ -205,7 +200,7 @@ by anlige @ 2017-07-23
 		return token_type;
 	}
 
-	function line(start, end, words, result){
+	function line(start, end, words, result, lineno){
 		if(start == end){
 			return;
 		}
@@ -230,13 +225,13 @@ by anlige @ 2017-07-23
 					part += '@';
 					break;
 				}
-				part_end = check_syntax(index + 1, end, words, []);
+				part_end = check_syntax(index + 1, end, words, [], false, lineno);
 				if(part_end > index + 1){
-					result.push(VARIABLE_NAME + ' += "' + part.replace(/"/g, '\\"') + '";');
+					result.putString(part);
 					variable_expression = words.slice(index + 1, part_end).join('');
 					index = part_end - 1;
 					part = '';
-					result.push(VARIABLE_NAME + ' += ' + (escape ? 'Html.escape(' : '') + variable_expression + (escape ? ')' : '') + ';');
+					result.putVariable((escape ? 'Html.escape(' : '') + variable_expression + (escape ? ')' : ''));
 				}else{
 					part += '@';
 				}
@@ -246,12 +241,13 @@ by anlige @ 2017-07-23
 			index++;
 		}
 		if(part){
-			result.push(VARIABLE_NAME + ' += "' + part.replace(/"/g, '\\"') + '";');
+			result.putString(part);
 		}
+		result.putString('\\n');
 	}
 	
 	
-	function check_syntax(start, end, words, levels, verify){
+	function check_syntax(start, end, words, levels, verify, lineno){
 		var chr = '',
 			quote = false,
 			stop = false,
@@ -272,7 +268,6 @@ by anlige @ 2017-07-23
 				}
 				if(!quote){
 					quote = true;
-					_start = start;
 					quote_char = chr;
 				}else if(quote && words[start - 1] != '\\' && quote_char == chr){
 					quote = false;
@@ -296,7 +291,7 @@ by anlige @ 2017-07-23
 				}
 				if(levels[levels.length -1] != PAIRS[chr]){
 					expect = PAIRS2[levels[levels.length -1]];
-					throw 'unexpected symbol "' + chr + '"' + (expect ? ', expect "' + PAIRS2[levels[levels.length -1]] + '"' : '') ;
+					throw exception('unexpected symbol "' + chr + '"' + (expect ? ', expect "' + PAIRS2[levels[levels.length -1]] + '"' : '') , lineno, words.slice(_start, end).join(''));
 				}
 				levels.pop();
 				if(!verify){
@@ -321,10 +316,10 @@ by anlige @ 2017-07-23
 			start++;
 		}
 		if(quote){
-			throw 'quote_char (' + quote_char + ') missing';
+			throw exception('quote_char (' + quote_char + ') missing', lineno, words.slice(_start, end).join(''));
 		}
 		if(!verify && levels.length !=0){
-			throw '"' + PAIRS2[levels[levels.length - 1]] + '" missing';
+			throw exception('"' + PAIRS2[levels[levels.length - 1]] + '" missing', lineno, words.slice(_start, end).join(''));
 		}
 		return start;
 	}
@@ -361,63 +356,68 @@ by anlige @ 2017-07-23
 			return new __raw(src);
 		}
 	};
-
-	//compile mutile-string line into one line
-	function filter_result(lines){
-		var last_is_string = false,
-			length = lines.length,
-			line = '',
-			result = [], 
-			last_line = '';
-		
-		for(var i = 0; i < length; i++){
-			line = lines[i];
-			if(line.length > VARIABLE_NAME.length + 7 
-			&& line.substr(line.length - 2) == '";' 
-			&& line.substr(0, VARIABLE_NAME.length + 5) == VARIABLE_NAME + ' += "'){
-				if(!last_is_string){
-					last_is_string = true;
-					result.push(line);
-				}else{
-					last_line = result[result.length - 1];
-					last_line = last_line.substr(0, last_line.length - 2);
-					last_line = last_line + line.substr(VARIABLE_NAME.length + 5);
-					result[result.length - 1] = last_line;
-				}
-			}else{
-				last_is_string = false;
-				result.push(line);
+	
+	var __RESULTS__ = [];
+	function __result__(){
+		var results = '';
+		var last_string = '';
+		var _pool = __RESULTS__.pop();
+		if(_pool){
+			return _pool;
+		}
+		function ensure(){
+			if(last_string != ''){
+				results += VARIABLE_NAME + ' += "' + last_string.replace(/"/g, '\\"') + '";\n';
+			}
+			last_string = '';
+		}
+		function _put_string(src){
+			last_string += src;
+		}
+		function _put_variable(vari){
+			ensure();
+			results +=  VARIABLE_NAME + ' += ' + vari + ';\n';
+		}
+		function _put_code(code){
+			ensure();
+			results +=  code + '\n';
+		}
+		function _end(){
+			ensure();
+			try{
+				return results;
+			}finally{
+				results = '';
+				__RESULTS__.push(this);
 			}
 		}
-		return result;
+		return {
+			putString : _put_string,
+			putCode : _put_code,
+			putVariable : _put_variable,
+			finish : _end
+		};
 	}
 
-	function parse_foreach(line, type, __LINE__){
+	function parse_foreach(line, type, result, lineno){
 		var parts = /^(?:\s*)(.+?)(?:\s*)as(?:\s*)(?:([^\s]+?)(?:(?:\s*),(?:\s*)([^\s]+?))?)(?:\s*)\{$/.exec(line);
 		if(!parts){
-			throw 'syntax error for \'foreach\' statement';
+			throw exception('syntax error for \'foreach\' statement', lineno, line);
 		}
 		var variable_name = parts[1];
 		var key =  parts[2];
 		var value =  parts[3];
 		if(!value){
 			value = key;
-			key = '__key_' + __LINE__;
+			key = '__key_' + lineno;
 		}
-		var lines = [];
 		if(type == TOKEN.EACH){
-			lines.push('for(var ' + key + ' = 0; ' + key + ' < ' + variable_name + '.length; ' + key + '++){');
+			result.putCode('for(var ' + key + ' = 0; ' + key + ' < ' + variable_name + '.length; ' + key + '++){');
 		}else{
-			lines.push('for(var ' + key + ' in ' + variable_name + '){');
-			lines.push('if(!' + variable_name + '.hasOwnProperty(' + key + ')) continue;');
+			result.putCode('for(var ' + key + ' in ' + variable_name + '){');
+			result.putCode('if(!' + variable_name + '.hasOwnProperty(' + key + ')) continue;');
 		}
-		lines.push('var ' + value + ' = ' + variable_name + '[' + key + '];');
-		return lines.join('\n');
-	}
-
-	function end_script(linetext, ends){
-		var ends_length = ends.length;
-		return linetext.length >= ends_length && linetext.substr(linetext.length - ends_length) == ends;
+		result.putCode('var ' + value + ' = ' + variable_name + '[' + key + '];');
 	}
 
 	var __CACHE__ = {};
@@ -438,6 +438,7 @@ by anlige @ 2017-07-23
 	
 	function __initlize(){
 	}
+	
 	__initlize.subscribe = function(token, callback){
 		if(typeof callback != 'function'){
 			throw 'Exception : subscribe failed. callback must be a function';
@@ -476,6 +477,15 @@ by anlige @ 2017-07-23
 		
 	};
 	
+	function exception(e, lineno, line){
+		return 'Exception : ' + e + '\nLine: ' + lineno + '\nCode: ' + line;
+	}
+	function linetext(token, contents){
+		if(token.linetext === undefined){
+			return contents.slice(token.start, token.end);
+		}
+		return token.linetext;
+	}
 	__initlize.compile = function(content){
 		var _crc32 = '';
 		if(global_setting.cache === true){
@@ -484,115 +494,58 @@ by anlige @ 2017-07-23
 				return __CACHE__[_crc32];
 			}
 		}
-		
-		var result = [];
-		var __LINE__ =  0;
-		result.push('var ' + VARIABLE_NAME + ' = \'\';');
-
 		content = content.replace(/^([\r\n]+)/, '');
 		
-		var CODE_LEVELS = [];
-		
-		function exception(e, start, fullline){
-			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + fullline;
-		}
-		var trim_start = global_setting.trim_start,
-
-			last_code_line = '',
-			last_line_num = 0,
-			last_line_start = 0,
-			_region = false;
+		var result = __result__();
+		result.putCode('var ' + VARIABLE_NAME + ' = \'\';'); 
+		var _region = false,
+			_token = null;
 
 		
-		scanline(content, function(start, end, words, line_num, emptys){
-			__LINE__ = line_num;
-			var _token = null;
-			var fullline = content.slice(start, end);
-			try{
-				_token = token(start, end, words);
-			}catch(e){
-				throw exception(e, start, fullline);
-			}
-			var linetext = null;
-			publish(_token, words, __LINE__, fullline, result);
-			if(_token.linetext === undefined){
-				linetext = content.slice(_token.start, _token.end);
-			}else{
-				linetext = _token.linetext;
-			}
+		scanline(content, function(start, end, words, lineno){
+			
+			_token = token(start, end, words, lineno);
+			_token.lineno = lineno;
+			
+			publish(_token, words, result);
+			
 			switch(_token.type){
 				case TOKEN.SKIP:
 				case TOKEN.COMMENT:
 					break;
 				case TOKEN.REGION : 
-					_region = true;
-					break;
 				case TOKEN.ENDREGION : 
-					_region = false;
+					_region = !_region;
 					break;	
 				case TOKEN.FOREACH : 
 				case TOKEN.EACH : 
-					try{
-						linetext = parse_foreach(linetext, _token.type, __LINE__);
-					}catch(e){
-						if(typeof e == 'string'){
-							throw exception(e, start, fullline);
-						}
-						throw e;
-					}
-					_token.type = '';
-				
+					parse_foreach(_token.linetext || (content.slice(_token.start, _token.end)), _token.type, result, lineno);
+					break;
 				case TOKEN.IF : 
 				case TOKEN.FOR : 
 				case TOKEN.SWITCH : 
 				case TOKEN.WHILE : 
-					linetext = _token.type + linetext;
+					_token.linetext = _token.type + (_token.linetext || (content.slice(_token.start, _token.end)));
 				case TOKEN.CODE : 
 					if(!_region){
-						try{
-							//simple syntax parse
-							check_syntax(_token.start, _token.end, words, CODE_LEVELS , true);
-						}catch(e){
-							if(typeof e == 'string'){
-								throw exception(e, start, fullline);
-							}
-							throw e;
-						}
-						last_code_line = fullline;
-						last_line_num = line_num;
-						last_line_start = start;
-						result.push(linetext);
+						result.putCode(_token.linetext || (content.slice(_token.start, _token.end)));
 						break;
 					}
 				
 				case TOKEN.HTML : 
 				case TOKEN.HTMLEND : 
 				case TOKEN.LINE : 
-					try{
-						if(!trim_start && emptys){
-							result.push(VARIABLE_NAME + ' += "' + emptys + '";');
-						}
-						line(_token.start, _token.end, words, result);
-						result.push(VARIABLE_NAME + ' += "\\n";');
-					}catch(e){
-						if(typeof e == 'string'){
-							throw exception(e, start, fullline);
-						}
-						throw e;
-					}
+					line(_token.start, _token.end, words, result, lineno);
 					break;
 			}
+			_token = null;
 		});
-		
-		//syntax parse result
-		if(CODE_LEVELS.length != 0){
-			__LINE__ = last_line_num;
-			throw exception('"' + PAIRS2[CODE_LEVELS[CODE_LEVELS.length - 1]] + '" missing', last_line_start, last_code_line);
+		if(_region){
+			throw exception('region not closed!', 0 , '');
 		}
 		
-		result.push('return ' + VARIABLE_NAME + ';');
-		result = filter_result(result);
-		var code = result.join('\r\n');
+		result.putCode('return ' + VARIABLE_NAME + ';');
+		var code = result.finish();
 
 		if(global_setting.cache === true){
 			__CACHE__[_crc32] = code;
@@ -646,7 +599,6 @@ by anlige @ 2017-07-23
 	};
 	
 	__initlize.config = function(name, value){
-		name == 'trim_start' && (global_setting[name] = value !== false);
 		name == 'escape' && (global_setting[name] = value !== false);
 		name == 'cache' && (global_setting[name] = value !== false);
 	};
