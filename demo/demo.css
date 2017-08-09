@@ -1,5 +1,6 @@
 /*!
 
 */
-
-a{color: blue; text-decoration: underline;cursor:pointer}
+body,pre,textarea,input {font-size:14px;font-family:'microsoft yahei', arial;line-height:150%;}
+a{display: inline-block; padding: 3px 8px; background-color: #ef5555; color:#fff; text-decoration: none; border-radius:3px; margin-bottom:5px;cursor:pointer}
+#nav-list a{ background-color: #dc5555; color:#fff; }

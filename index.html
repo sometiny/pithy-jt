@@ -3,6 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link href="demo/demo.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="resources/utils.js" charset="utf-8"></script>
 	<script type="text/javascript" src="src/pithy.teemplate.js" charset="utf-8"></script>
 
@@ -15,8 +16,10 @@
 	</style>
 </head>
 <body>
+	<p id="nav-list"><a href="demo/index.html">所有示例</a></p>
 	<h2>Pjt在线测试工具</h2>
-	<p>修改模板和数据内容，自动编译渲染。<a href="demo/index.html">所有示例</a></p>
+	<p>修改模板和数据内容，自动编译渲染。</p>
+	<p><input checked="checked" type="checkbox" onclick="Pjt.config('escape', this.checked);start();" />escape</p>
 	<div class="container">
 		<div class="result"><h3>模板</h3><textarea id="template"></textarea></div>
 		<div class="result"><h3>数据</h3><textarea id="data">{
@@ -94,7 +97,7 @@
 			
 			on('template', 'keyup', start);
 			on('data', 'keyup', start);
-			
+			Pjt.config('cache', false);
 			callback();
 		}
 		on(window, 'load', __initlize);
