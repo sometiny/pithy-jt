@@ -225,7 +225,7 @@ by anlige @ 2017-07-23
 					part += '@';
 					break;
 				}
-				part_end = check_syntax(index + 1, end, words, [], false, lineno);
+				part_end = check_syntax(index + 1, end, words, [], false, lineno, start);
 				if(part_end > index + 1){
 					result.putString(part);
 					variable_expression = words.slice(index + 1, part_end).join('');
@@ -247,11 +247,9 @@ by anlige @ 2017-07-23
 	}
 	
 	
-	function check_syntax(start, end, words, levels, verify, lineno){
+	function check_syntax(start, end, words, levels, verify, lineno, token_start){
 		var chr = '',
 			quote = false,
-			stop = false,
-			_start = start,
 			expect,
 			quote_char = '';
 		
@@ -291,7 +289,7 @@ by anlige @ 2017-07-23
 				}
 				if(levels[levels.length -1] != PAIRS[chr]){
 					expect = PAIRS2[levels[levels.length -1]];
-					throw exception('unexpected symbol "' + chr + '"' + (expect ? ', expect "' + PAIRS2[levels[levels.length -1]] + '"' : '') , lineno, words.slice(_start, end).join(''));
+					throw exception('unexpected symbol "' + chr + '"' + (expect ? ', expect "' + PAIRS2[levels[levels.length -1]] + '"' : '') , lineno, words.slice(token_start, end).join(''));
 				}
 				levels.pop();
 				if(!verify){
@@ -316,10 +314,10 @@ by anlige @ 2017-07-23
 			start++;
 		}
 		if(quote){
-			throw exception('quote_char (' + quote_char + ') missing', lineno, words.slice(_start, end).join(''));
+			throw exception('quote_char (' + quote_char + ') missing', lineno, words.slice(token_start, end).join(''));
 		}
 		if(!verify && levels.length !=0){
-			throw exception('"' + PAIRS2[levels[levels.length - 1]] + '" missing', lineno, words.slice(_start, end).join(''));
+			throw exception('"' + PAIRS2[levels[levels.length - 1]] + '" missing', lineno, words.slice(token_start, end).join(''));
 		}
 		return start;
 	}
@@ -498,17 +496,16 @@ by anlige @ 2017-07-23
 		
 		var result = __result__();
 		result.putCode('var ' + VARIABLE_NAME + ' = \'\';'); 
-		var _region = false,
-			_token = null;
+		var _region = false;
 
 		
 		scanline(content, function(start, end, words, lineno){
 			
-			_token = token(start, end, words, lineno);
+			var _token = token(start, end, words, lineno), token_change = false;
 			_token.lineno = lineno;
 			
 			publish(_token, words, result);
-			
+			token_change = _token.linetext !== undefined;
 			switch(_token.type){
 				case TOKEN.SKIP:
 				case TOKEN.COMMENT:
@@ -535,8 +532,11 @@ by anlige @ 2017-07-23
 				case TOKEN.HTML : 
 				case TOKEN.HTMLEND : 
 				case TOKEN.LINE : 
+					if(token_change){
+						line(0, _token.linetext.length, _token.linetext.split(''), result, lineno);
+						break;
+					}
 					line(_token.start, _token.end, words, result, lineno);
-					break;
 			}
 			_token = null;
 		});
