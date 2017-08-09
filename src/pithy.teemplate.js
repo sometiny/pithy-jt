@@ -363,6 +363,7 @@ by anlige @ 2017-07-23
 		if(_pool){
 			return _pool;
 		}
+		var __LEVEL__ = [];
 		function flush(){
 			if(last_string != ''){
 				results += VARIABLE_NAME + ' += "' + last_string.replace(/"/g, '\\"') + '";\n';
@@ -381,14 +382,19 @@ by anlige @ 2017-07-23
 		}
 		function _put_code(code){
 			flush();
+			check_syntax(0, code.length, code.split(''), __LEVEL__, true, 0, 0);
 			results +=  code + '\n';
 		}
 		function _end(){
 			flush();
+			if(__LEVEL__.length != 0){
+				throw exception('"' + PAIRS2[__LEVEL__[__LEVEL__.length - 1]] + '" missing in code block', 0, '');
+			}
 			try{
 				return results;
 			}finally{
 				results = '';
+				__LEVEL__.length = 0;
 				__RESULTS__.push(this);
 			}
 		}
