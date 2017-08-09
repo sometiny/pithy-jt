@@ -363,7 +363,7 @@ by anlige @ 2017-07-23
 		if(_pool){
 			return _pool;
 		}
-		function ensure(){
+		function flush(){
 			if(last_string != ''){
 				results += VARIABLE_NAME + ' += "' + last_string.replace(/"/g, '\\"') + '";\n';
 			}
@@ -371,17 +371,20 @@ by anlige @ 2017-07-23
 		}
 		function _put_string(src){
 			last_string += src;
+			if(last_string.length > 512){
+				flush();
+			}
 		}
 		function _put_variable(vari){
-			ensure();
+			flush();
 			results +=  VARIABLE_NAME + ' += ' + vari + ';\n';
 		}
 		function _put_code(code){
-			ensure();
+			flush();
 			results +=  code + '\n';
 		}
 		function _end(){
-			ensure();
+			flush();
 			try{
 				return results;
 			}finally{
@@ -477,12 +480,6 @@ by anlige @ 2017-07-23
 	
 	function exception(e, lineno, line){
 		return 'Exception : ' + e + '\nLine: ' + lineno + '\nCode: ' + line;
-	}
-	function linetext(token, contents){
-		if(token.linetext === undefined){
-			return contents.slice(token.start, token.end);
-		}
-		return token.linetext;
 	}
 	__initlize.compile = function(content){
 		var _crc32 = '';
