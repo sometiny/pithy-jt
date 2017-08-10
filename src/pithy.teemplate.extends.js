@@ -29,6 +29,7 @@ by anlige @ 2017-07-23
 		LAYOUT : 'layout',
 		EXTENDS : 'extends',
 		SECTION : 'section',
+		INCLUDE : 'include',
 		ENDSECTION : 'endsection',
 		VIEW : 'view',
 		LINE : 'line',
@@ -57,6 +58,7 @@ by anlige @ 2017-07-23
 			case 'extends' :
 			case 'view' :
 			case 'section' :
+			case 'include' :
 			case 'endsection' :
 				_token.start = start;
 				_token.type = token;
@@ -162,10 +164,10 @@ by anlige @ 2017-07-23
 	* @param	name	: layout name
 	*/
 	function __layout(name){
-		this.name = name;
+		this.name = name.replace(/\s/g, '');
 		this.layout = [];
 		this.is_layout = true;
-		__LAYOUTS__[name] = this;
+		__LAYOUTS__[this.name] = this;
 	}
 	
 	__layout.prototype.push = function(contents){
@@ -181,20 +183,33 @@ by anlige @ 2017-07-23
 		for(var i = 0; i < length; i++){
 			item = layout[i];
 			if(item.is_section){
-				push.apply(result, (sections && sections[item.name]) ? sections[item.name].lines : item.lines);
+				((sections && sections[item.name]) ? sections[item.name] : item).compile(result);
+				continue;
+			}
+			if(item.is_include){
+				get_include(result, item);
 				continue;
 			}
 			result.push(item);
 		}
-		return _pjt.compile(result.join('\n'));
+		return result;
 	};
+
+	/*
+	* @DESCRIPTION	__include
+	* @PARAM	name	: included view or layout
+	*/
+	function __include(name){
+		this.name = name.replace(/\s/g, '');
+		this.is_include = true;
+	}
 
 	/*
 	* @description	__section
 	* @param	name	: section name
 	*/
 	function __section(name){
-		this.name = name;
+		this.name = name.replace(/\s/g, '');
 		this.lines = [];
 		this.is_section = true;
 	}
@@ -202,6 +217,31 @@ by anlige @ 2017-07-23
 	__section.prototype.push = function(line){
 		this.lines.push(line);
 	};
+	
+	__section.prototype.compile = function(result){
+		var lines = this.lines;
+		var length = lines.length;
+		if(length == 0){
+			return;
+		}
+		var item = null;
+		for(var i = 0;i < length; i++){
+			item = lines[i];
+			if(item.is_include){
+				get_include(result, item);
+				continue;
+			}
+			result.push(item);
+		}
+	};
+
+	function get_include(result, item){
+		var _layout = __LAYOUTS__[item.name];
+		if(!_layout){
+			throw 'can not find layout or view \'' + this.layout + '\'';
+		}
+		push.apply(result, _layout.compile());
+	}
 
 	function parse_view(line){
 		var parts = line.split(/\s+/);
@@ -253,8 +293,10 @@ by anlige @ 2017-07-23
 		if(!layout){
 			return '';
 		}
-		return __CACHE__[name] = layout.compile();
+		var lines = layout.compile().join('\n');
+		return __CACHE__[name] = _pjt.compile(lines);
 	};
+	
 	__initlize.compileas = function(content){
 		
 		var __LINE__ =  0;
@@ -262,41 +304,40 @@ by anlige @ 2017-07-23
 		content = content.replace(/^([\r\n]+)/, '');
 		
 		
-		function exception(e, start, fullline){
-			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + fullline;
+		function exception(e, start, end){
+			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + content.slice(start, end);
 		}
 		var _container = null;
 		var _section = null;
-		_pjt.scanline(content, function(start, end, words, line_num, emptys){
+		_pjt.scanline(content, function(start, end, words, line_num){
 			__LINE__ = line_num;
 			var _token = null;
-			var fullline = content.slice(start, end);
 			try{
 				_token = token(start, end, words);
 			}catch(e){
-				throw exception(e, start, fullline);
+				throw exception(e, start, content.slice(start, end));
 			}
 			var linetext = content.slice(_token.start, _token.end);
 			switch(_token.type){
 				case TOKEN.COMMENT:
 					break;
 				case TOKEN.LAYOUT:
-					_container = new __layout(linetext.replace(/\s/g, ''));
+					_container = new __layout(linetext);
 					break;
 				case TOKEN.VIEW:
 					var names = parse_view(linetext);
 					if(names[2] == names[0]){
-						throw exception('view can not extend itself', _token.start, fullline);
+						throw exception('view can not extend itself', start, end);
 					}
 					_container = new __view(names[0]);
 					_container.layout = names[2];
 					break;
 				case TOKEN.SECTION:
 					if(_section != null){
-						throw exception('command \'@endsection\' is missing', _token.start, fullline);
+						throw exception('command \'@endsection\' is missing', start, end);
 					}
 					if(_container != null){
-						_section = new __section(linetext.replace(/\s/g, ''));
+						_section = new __section(linetext);
 						break;
 					}
 				case TOKEN.ENDSECTION:
@@ -305,16 +346,30 @@ by anlige @ 2017-07-23
 						_section = null;
 						break;
 					}
+				case TOKEN.INCLUDE: 
+					if(_container == null){
+						throw exception('\'@layout\' or \'@extends\' not be declared first', start, end);
+					}
+					var _include = new __include(linetext);
+					if(_section != null){
+						_section.push(_include);
+						break;
+					}
+					if(_container != null){
+						_container.push(_include);
+						break;
+					}
+					
 				case TOKEN.LINE: 
 					if(_container == null){
-						throw exception('first line must be \'@layout\' or \'@extends\' command', _token.start, fullline);
+						throw exception('\'@layout\' or \'@extends\' not be declared first', start, end);
 					}
 					if(_section != null){
 						_section.push(linetext);
 						break;
 					}
 					if(_container.is_view){
-						throw exception('only command \'@section\' can be in view', _token.start, fullline);
+						throw exception('only command \'@section\' or \'@include\' can be in view', start, end);
 					}
 					_container.push(linetext);
 			}
@@ -323,6 +378,8 @@ by anlige @ 2017-07-23
 		if(_section != null){
 			throw exception('command \'@endsection\' is missing');
 		}
+		exception = null;
+		content = '';
 		return _container;
 	};
 
