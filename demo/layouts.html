@@ -1,5 +1,22 @@
-@* 主布局
+@* 说实话，看到这么一大堆@符号，我也凌乱了
 
+@* 定义一个布局，用于底部
+@layout footer
+<div style="color:red;font-size:24px;">底部</div>
+@section copyright
+<p>版权</p>
+@endsection
+
+
+
+@* 定义一个视图，继承footer布局
+@view userfooter extends footer
+@section copyright
+<p>用户版权</p>
+@endsection
+
+
+@* 主布局
 @layout default-layout
 <div class="main-layout">
 	<h3>@title</h3>
@@ -18,8 +35,14 @@
 	@endsection
 </div>
 
+@* 主布局通过include包含footer布局
+@section footer
+@include footer
+@endsection
 
 
+
+@* 视图，继承主布局
 @view classes extends default-layout
 @section sub-title
 <h4>学习成绩</h4>
@@ -32,4 +55,10 @@
 		<li>名称：@cls.name 分数：@cls.score</li>
 	}
 </ul>
+@endsection
+
+
+@* 视图通过include包含userfooter视图
+@section footer
+@include userfooter
 @endsection
