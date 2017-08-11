@@ -187,7 +187,7 @@ by anlige @ 2017-07-23
 				continue;
 			}
 			if(item.is_include){
-				get_include(result, item);
+				item.compile(result);
 				continue;
 			}
 			result.push(item);
@@ -202,6 +202,13 @@ by anlige @ 2017-07-23
 	function __include(name){
 		this.name = name.replace(/\s/g, '');
 		this.is_include = true;
+	}
+	__include.prototype.compile = function(result){
+		var _layout = __LAYOUTS__[this.name];
+		if(!_layout){
+			throw 'can not find layout or view \'' + this.name + '\'';
+		}
+		push.apply(result, _layout.compile());
 	}
 
 	/*
@@ -228,20 +235,12 @@ by anlige @ 2017-07-23
 		for(var i = 0;i < length; i++){
 			item = lines[i];
 			if(item.is_include){
-				get_include(result, item);
+				item.compile(result);
 				continue;
 			}
 			result.push(item);
 		}
 	};
-
-	function get_include(result, item){
-		var _layout = __LAYOUTS__[item.name];
-		if(!_layout){
-			throw 'can not find layout or view \'' + this.layout + '\'';
-		}
-		push.apply(result, _layout.compile());
-	}
 
 	function parse_view(line){
 		var parts = line.split(/\s+/);
