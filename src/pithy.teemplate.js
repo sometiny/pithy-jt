@@ -8,7 +8,8 @@ by anlige @ 2017-07-23
 ;(function(crc32){
 	var global_setting = {
 		escape : true,
-		cache : true
+		cache : true,
+		trim_start : true
 	};
 	var blank_chars = {'\r' : true, '\n' : true, '\t' : true, ' ' : true};
 	var newline_chars = {'\r' : true, '\n' : true};
@@ -46,7 +47,7 @@ by anlige @ 2017-07-23
 		if(!content || typeof content != 'string'){
 			return;
 		}
-		var _callback = function(start, end, words, lineno){
+		var _callback = function(start, end, words, lineno, emptys){
 			if(start == end){
 				return;
 			}
@@ -58,7 +59,7 @@ by anlige @ 2017-07-23
 					break;
 				}
 			}
-			callback(start, last + 1, words, lineno);
+			callback(start, last + 1, words, lineno, emptys);
 		};
 		var words = content.split('');
 		var length = words.length;
@@ -70,12 +71,13 @@ by anlige @ 2017-07-23
 		var start = 0;
 		var newline = true; 
 		var lineno = 0;
+		var emptys = '';
 		while(true){
 			chr = words[index];
 			if(	newline_chars[chr]){
 				newline = true;
 				lineno++;
-				_callback(start, index, words, lineno);
+				_callback(start, index, words, lineno, emptys);
 				start = index + 1;
 				
 				if(chr == '\r'){
@@ -84,18 +86,19 @@ by anlige @ 2017-07-23
 						start = index + 1;
 					}
 				}
+				emptys = '';
+				
 			}else if(newline && empty_chars[chr]){
 				start++;
-				
+				emptys += chr;
 			}else{
 				newline = false;
-				
 			}
 			index++;
 			
 			if(index >= length){
 				lineno++;
-				_callback(start, index, words, lineno);
+				_callback(start, index, words, lineno, emptys);
 				break;
 			}
 		}
@@ -502,9 +505,10 @@ by anlige @ 2017-07-23
 		result.putCode('var ' + VARIABLE_NAME + ' = \'\';'); 
 		var _region = false;
 
+		trim_start = global_setting.trim_start;
+
 		
-		scanline(content, function(start, end, words, lineno){
-			
+		scanline(content, function(start, end, words, lineno, emptys){
 			var _token = token(start, end, words, lineno), token_change = false;
 			_token.lineno = lineno;
 			
@@ -536,6 +540,9 @@ by anlige @ 2017-07-23
 				case TOKEN.HTML : 
 				case TOKEN.HTMLEND : 
 				case TOKEN.LINE : 
+					if(!trim_start && emptys){
+						result.putString(emptys);
+					}
 					if(token_change){
 						line(0, _token.linetext.length, _token.linetext.split(''), result, lineno);
 						break;
@@ -605,6 +612,7 @@ by anlige @ 2017-07-23
 	__initlize.config = function(name, value){
 		name == 'escape' && (global_setting[name] = value !== false);
 		name == 'cache' && (global_setting[name] = value !== false);
+		name == 'trim_start' && (global_setting[name] = value !== false);
 	};
 
 	__initlize.scanline = scanline;
