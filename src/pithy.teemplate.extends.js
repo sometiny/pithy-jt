@@ -308,7 +308,7 @@ by anlige @ 2017-07-23
 		}
 		var _container = null;
 		var _section = null;
-		_pjt.scanline(content, function(start, end, words, line_num){
+		_pjt.scanline(content, function(start, end, words, line_num, emptys){
 			__LINE__ = line_num;
 			var _token = null;
 			try{
@@ -360,6 +360,7 @@ by anlige @ 2017-07-23
 					}
 					
 				case TOKEN.LINE: 
+					linetext = emptys + linetext;
 					if(_container == null){
 						throw exception('\'@layout\' or \'@extends\' not be declared first', start, end);
 					}

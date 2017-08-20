@@ -72,6 +72,7 @@ by anlige @ 2017-07-23
 		var newline = true; 
 		var lineno = 0;
 		var emptys = '';
+		var trim_start = global_setting.trim_start;
 		while(true){
 			chr = words[index];
 			if(	newline_chars[chr]){
@@ -90,7 +91,7 @@ by anlige @ 2017-07-23
 				
 			}else if(newline && empty_chars[chr]){
 				start++;
-				emptys += chr;
+				trim_start || (emptys += chr);
 			}else{
 				newline = false;
 			}
@@ -540,7 +541,7 @@ by anlige @ 2017-07-23
 				case TOKEN.HTML : 
 				case TOKEN.HTMLEND : 
 				case TOKEN.LINE : 
-					if(!trim_start && emptys){
+					if(emptys){
 						result.putString(emptys);
 					}
 					if(token_change){
