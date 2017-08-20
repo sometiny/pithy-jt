@@ -239,6 +239,8 @@ by anlige @ 2017-07-23
 				}else{
 					part += '@';
 				}
+			}else if(chr == '"' || chr == '\\'){
+				part += '\\' + chr;
 			}else{
 				part += chr;
 			}
@@ -370,7 +372,7 @@ by anlige @ 2017-07-23
 		var __LEVEL__ = [];
 		function flush(){
 			if(last_string != ''){
-				results += VARIABLE_NAME + ' += "' + last_string.replace(/"/g, '\\"') + '";\n';
+				results += VARIABLE_NAME + ' += "' + last_string + '";\n';
 			}
 			last_string = '';
 		}
