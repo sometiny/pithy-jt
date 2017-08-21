@@ -49,6 +49,7 @@ by anlige @ 2017-07-23
 		}
 		var _callback = function(start, end, words, lineno, emptys){
 			if(start == end){
+				trim_start || callback(start, end, words, lineno, emptys);
 				return;
 			}
 			var last = end - 1;
@@ -199,13 +200,14 @@ by anlige @ 2017-07-23
 				token_type.start = start;
 			}
 		}else{
-			token_type.type = TOKEN.CODE;
+			token_type.type = start == end ? TOKEN.LINE : TOKEN.CODE;
 		}
 		return token_type;
 	}
 
 	function line(start, end, words, result, lineno){
 		if(start == end){
+			result.putString('\\n');
 			return;
 		}
 
