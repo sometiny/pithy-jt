@@ -30,6 +30,7 @@ by anlige @ 2017-07-23
 		EXTENDS : 'extends',
 		SECTION : 'section',
 		INCLUDE : 'include',
+		IMPORT : 'import',
 		ENDSECTION : 'endsection',
 		VIEW : 'view',
 		LINE : 'line',
@@ -60,6 +61,7 @@ by anlige @ 2017-07-23
 			case 'section' :
 			case 'include' :
 			case 'endsection' :
+			case 'import' :
 				_token.start = start;
 				_token.type = token;
 				break;
@@ -296,7 +298,7 @@ by anlige @ 2017-07-23
 		return __CACHE__[name] = _pjt.compile(lines);
 	};
 	
-	__initlize.compileas = function(content){
+	__initlize.compileas = function(content, import_callback, after_import){
 		
 		var __LINE__ =  0;
 
@@ -307,6 +309,7 @@ by anlige @ 2017-07-23
 			return 'Exception : ' + e + '\nLine: ' + __LINE__ + '\nCode: ' + content.slice(start, end);
 		}
 		var _container = null;
+		var _imports = [];
 		var _section = null;
 		_pjt.scanline(content, function(start, end, words, line_num, emptys){
 			__LINE__ = line_num;
@@ -319,6 +322,9 @@ by anlige @ 2017-07-23
 			var linetext = content.slice(_token.start, _token.end);
 			switch(_token.type){
 				case TOKEN.COMMENT:
+					break;
+				case TOKEN.IMPORT:
+					_imports.push(linetext.replace(/^\s+/, '').replace(/\s+$/, ''));
 					break;
 				case TOKEN.LAYOUT:
 					_container = new __layout(linetext);
@@ -361,6 +367,9 @@ by anlige @ 2017-07-23
 					
 				case TOKEN.LINE: 
 					linetext = emptys + linetext;
+					if(start == end && _container == null && _section == null){
+						break;
+					}
 					if(_container == null){
 						throw exception('\'@layout\' or \'@extends\' not be declared first', start, end);
 					}
@@ -380,8 +389,31 @@ by anlige @ 2017-07-23
 		}
 		exception = null;
 		content = '';
-		return _container;
+		var length = _imports.length;
+		if(length == 0 && after_import && typeof after_import == 'function'){
+			after_import(__LAYOUTS__);
+			return;
+		}
+		if(length > 0 && import_callback && typeof import_callback == 'function'){
+			imports(_imports, length, import_callback, after_import);
+			return;
+		}
+		return _imports;
 	};
+
+	function imports(_imports, length, callback, after_import){
+		var count = 0, contents = '';
+		function fn(content){
+			contents += content + '\n';
+			count++;
+			if(count >= length){
+				__initlize.compileas(contents, callback, after_import);
+			}
+		}
+		for(var i = 0; i < length; i++){
+			callback(_imports[i], fn);
+		}
+	}
 
 	
 	window.PjtExtends = __initlize;

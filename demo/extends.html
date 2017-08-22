@@ -40,7 +40,12 @@
 		}
 		function __initlize(res){
 			
-			PjtExtends.compileas(res);
+			PjtExtends.compileas(res, function(name, fn){
+				//Pjt内部不解析import命令，通过回调的方式，把import命令完全交给用户来处理
+				//用户解析玩import命令后，只要把import相关的模板内容通过fn回调给Pjt即可
+				//import引入的布局，跟直接在页面写代码有完全一致的效果，可以包含任何有效的指令
+				fn('@layout testimport\n<p>定义一个测试布局，用来测试import命令</p>');
+			});
 			__render('default-layout');
 		}
 		
